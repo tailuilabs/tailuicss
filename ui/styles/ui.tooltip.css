@@ -1,0 +1,62 @@
+@layer components {
+  /* Wrapper */
+  .ui-tooltip {
+    @apply relative inline-block;
+  }
+
+  .ui-tooltip .ui-tip {
+    @apply absolute z-50 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 transition-opacity duration-200;
+  }
+
+  .ui-tooltip:hover .ui-tip {
+    @apply opacity-100;
+  }
+
+  /* Arrow */
+  .ui-tooltip .ui-tip::after {
+    content: '';
+    @apply absolute w-2 h-2 bg-gray-900 rotate-45;
+  }
+
+  /* Positions */
+  .ui-tooltip .ui-tip {
+    @apply bottom-full left-1/2 -translate-x-1/2 mb-2;
+  }
+
+  .ui-tooltip .ui-tip::after {
+    @apply -bottom-1 left-1/2 -translate-x-1/2;
+  }
+
+  .ui-tooltip.ui-bottom .ui-tip {
+    @apply top-full bottom-auto left-1/2 -translate-x-1/2 mt-2 mb-0;
+  }
+
+  .ui-tooltip.ui-bottom .ui-tip::after {
+    @apply -top-1 bottom-auto left-1/2 -translate-x-1/2;
+  }
+
+  .ui-tooltip.ui-left .ui-tip {
+    @apply right-full left-auto bottom-auto top-1/2 -translate-y-1/2 translate-x-0 mr-2 mb-0;
+  }
+
+  .ui-tooltip.ui-left .ui-tip::after {
+    @apply -right-1 left-auto top-1/2 -translate-y-1/2 bottom-auto;
+  }
+
+  .ui-tooltip.ui-right .ui-tip {
+    @apply left-full right-auto bottom-auto top-1/2 -translate-y-1/2 translate-x-0 ml-2 mb-0;
+  }
+
+  .ui-tooltip.ui-right .ui-tip::after {
+    @apply -left-1 right-auto top-1/2 -translate-y-1/2 bottom-auto;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-tooltip .ui-tip {
+    @apply bg-gray-100 text-gray-900;
+  }
+
+  [data-theme="dark"] .ui-tooltip .ui-tip::after {
+    @apply bg-gray-100;
+  }
+}

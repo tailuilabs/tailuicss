@@ -1,0 +1,72 @@
+@layer components {
+  /* Base */
+  .ui-button {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer inline-flex items-center justify-center gap-2 text-sm;
+  }
+
+  /* Primary */
+  .ui-button.ui-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-sm hover:shadow-md;
+  }
+
+  /* Secondary */
+  .ui-button.ui-secondary {
+    @apply bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300 border border-gray-200;
+  }
+
+  /* Danger */
+  .ui-button.ui-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm;
+  }
+
+  /* Ghost */
+  .ui-button.ui-ghost {
+    @apply bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900;
+  }
+
+  /* Outline */
+  .ui-button.ui-outline {
+    @apply bg-transparent border-2 border-current hover:bg-gray-50;
+  }
+
+  /* Sizes */
+  .ui-button.ui-sm {
+    @apply text-xs px-3 py-1.5;
+  }
+
+  .ui-button.ui-lg {
+    @apply text-base px-6 py-3;
+  }
+
+  .ui-button.ui-xl {
+    @apply text-lg px-8 py-4;
+  }
+
+  /* States */
+  .ui-button.ui-disabled {
+    @apply opacity-50 cursor-not-allowed pointer-events-none;
+  }
+
+  .ui-button.ui-loading {
+    @apply opacity-70 cursor-wait;
+  }
+
+  /* Full width */
+  .ui-button.ui-full {
+    @apply w-full;
+  }
+
+  /* Icon only */
+  .ui-button.ui-icon {
+    @apply p-2 aspect-square;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-button.ui-secondary {
+    @apply bg-gray-800 text-gray-100 hover:bg-gray-700 border-gray-700;
+  }
+
+  [data-theme="dark"] .ui-button.ui-ghost {
+    @apply text-gray-400 hover:bg-gray-800 hover:text-gray-100;
+  }
+}

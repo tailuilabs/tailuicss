@@ -1,0 +1,81 @@
+@layer components {
+  /* Base */
+  .ui-list {
+    @apply flex flex-col divide-y divide-gray-200 border border-gray-200 rounded-xl overflow-hidden;
+  }
+
+  /* Item */
+  .ui-list-item {
+    @apply flex items-center gap-3 px-4 py-3 bg-white text-sm text-gray-800;
+  }
+
+  /* Interactive */
+  .ui-list.ui-interactive .ui-list-item {
+    @apply cursor-pointer transition-colors duration-150 hover:bg-gray-50;
+  }
+
+  .ui-list.ui-interactive .ui-list-item:active {
+    @apply bg-gray-100;
+  }
+
+  /* Selected */
+  .ui-list-item.ui-selected {
+    @apply bg-blue-50 text-blue-700;
+  }
+
+  /* Slots */
+  .ui-list-item .ui-leading {
+    @apply shrink-0;
+  }
+
+  .ui-list-item .ui-content {
+    @apply flex-1 min-w-0;
+  }
+
+  .ui-list-item .ui-trailing {
+    @apply shrink-0 text-gray-400;
+  }
+
+  .ui-list-item .ui-title {
+    @apply font-medium truncate;
+  }
+
+  .ui-list-item .ui-subtitle {
+    @apply text-xs text-gray-500 truncate;
+  }
+
+  /* Flush (no border) */
+  .ui-list.ui-flush {
+    @apply border-none rounded-none;
+  }
+
+  /* Compact */
+  .ui-list.ui-compact .ui-list-item {
+    @apply px-3 py-2 text-xs;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-list {
+    @apply border-gray-700 divide-gray-700;
+  }
+
+  [data-theme="dark"] .ui-list-item {
+    @apply bg-gray-900 text-gray-200;
+  }
+
+  [data-theme="dark"] .ui-list.ui-interactive .ui-list-item:hover {
+    @apply bg-gray-800;
+  }
+
+  [data-theme="dark"] .ui-list-item.ui-selected {
+    @apply bg-blue-900/30 text-blue-300;
+  }
+
+  [data-theme="dark"] .ui-list-item .ui-subtitle {
+    @apply text-gray-500;
+  }
+
+  [data-theme="dark"] .ui-list-item .ui-trailing {
+    @apply text-gray-600;
+  }
+}

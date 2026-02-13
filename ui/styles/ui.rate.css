@@ -1,0 +1,76 @@
+@layer components {
+  /* Base */
+  .ui-rate {
+    @apply inline-flex items-center gap-1;
+  }
+
+  /* Star */
+  .ui-rate .ui-star {
+    @apply cursor-pointer transition-colors duration-150 text-gray-300;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .ui-rate .ui-star::before {
+    content: '\2605';
+  }
+
+  .ui-rate .ui-star.ui-active {
+    @apply text-yellow-400;
+  }
+
+  .ui-rate .ui-star:hover {
+    @apply text-yellow-300;
+  }
+
+  /* Readonly */
+  .ui-rate.ui-readonly .ui-star {
+    @apply cursor-default;
+  }
+
+  .ui-rate.ui-readonly .ui-star:hover {
+    @apply text-gray-300;
+  }
+
+  .ui-rate.ui-readonly .ui-star.ui-active:hover {
+    @apply text-yellow-400;
+  }
+
+  /* Sizes */
+  .ui-rate.ui-sm .ui-star {
+    font-size: 1rem;
+  }
+
+  .ui-rate.ui-lg .ui-star {
+    font-size: 2rem;
+  }
+
+  /* Half star support */
+  .ui-rate .ui-star.ui-half {
+    @apply relative text-gray-300;
+  }
+
+  .ui-rate .ui-star.ui-half::after {
+    content: '\2605';
+    @apply absolute inset-0 text-yellow-400 overflow-hidden;
+    width: 50%;
+  }
+
+  /* Disabled */
+  .ui-rate.ui-disabled {
+    @apply opacity-50 pointer-events-none;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-rate .ui-star {
+    @apply text-gray-600;
+  }
+
+  [data-theme="dark"] .ui-rate .ui-star.ui-active {
+    @apply text-yellow-400;
+  }
+
+  [data-theme="dark"] .ui-rate .ui-star:hover {
+    @apply text-yellow-300;
+  }
+}

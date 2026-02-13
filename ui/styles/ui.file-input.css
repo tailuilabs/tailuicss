@@ -1,0 +1,74 @@
+@layer components {
+  /* Base */
+  .ui-file-input {
+    @apply relative flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 cursor-pointer transition-all duration-200 hover:border-blue-400 hover:bg-blue-50/30;
+    min-height: 8rem;
+  }
+
+  .ui-file-input input[type="file"] {
+    @apply absolute inset-0 w-full h-full opacity-0 cursor-pointer;
+  }
+
+  /* Content */
+  .ui-file-input .ui-placeholder {
+    @apply flex flex-col items-center gap-2 text-center pointer-events-none;
+  }
+
+  .ui-file-input .ui-icon {
+    @apply text-gray-400 text-3xl;
+  }
+
+  .ui-file-input .ui-text {
+    @apply text-sm text-gray-500;
+  }
+
+  .ui-file-input .ui-hint {
+    @apply text-xs text-gray-400;
+  }
+
+  /* Drag active */
+  .ui-file-input.ui-dragover {
+    @apply border-blue-500 bg-blue-50;
+  }
+
+  /* Compact */
+  .ui-file-input.ui-compact {
+    @apply flex-row gap-3 px-4;
+    min-height: 3rem;
+  }
+
+  .ui-file-input.ui-compact .ui-placeholder {
+    @apply flex-row;
+  }
+
+  /* Error */
+  .ui-file-input.ui-error {
+    @apply border-red-300 bg-red-50/30 hover:border-red-400;
+  }
+
+  /* Disabled */
+  .ui-file-input.ui-disabled {
+    @apply opacity-50 cursor-not-allowed hover:border-gray-300 hover:bg-gray-50;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-file-input {
+    @apply border-gray-600 bg-gray-800/50 hover:border-blue-500 hover:bg-blue-900/20;
+  }
+
+  [data-theme="dark"] .ui-file-input .ui-icon {
+    @apply text-gray-500;
+  }
+
+  [data-theme="dark"] .ui-file-input .ui-text {
+    @apply text-gray-400;
+  }
+
+  [data-theme="dark"] .ui-file-input .ui-hint {
+    @apply text-gray-500;
+  }
+
+  [data-theme="dark"] .ui-file-input.ui-dragover {
+    @apply border-blue-400 bg-blue-900/30;
+  }
+}

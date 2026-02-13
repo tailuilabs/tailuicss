@@ -1,0 +1,65 @@
+@layer components {
+  /* Overlay */
+  .ui-overlay {
+    @apply fixed inset-0 bg-black/50 z-40 flex items-center justify-center;
+    @style {
+      backdrop-filter: blur(var(--ui-overlay-blur, 4px));
+    }
+  }
+
+  /* Modal base */
+  .ui-modal {
+    @apply bg-white rounded-2xl shadow-2xl z-50 w-full max-w-lg mx-4 overflow-hidden;
+    @style {
+      max-height: var(--ui-modal-max-height, 85vh);
+    }
+  }
+
+  /* Sizes */
+  .ui-modal.ui-sm {
+    @apply max-w-sm;
+  }
+
+  .ui-modal.ui-lg {
+    @apply max-w-2xl;
+  }
+
+  .ui-modal.ui-xl {
+    @apply max-w-4xl;
+  }
+
+  .ui-modal.ui-full {
+    @apply max-w-none mx-0 rounded-none h-screen;
+  }
+
+  /* Modal slots (reuses card slots) */
+  .ui-modal .ui-header {
+    @apply px-6 py-4 border-b border-gray-100 font-semibold text-lg;
+  }
+
+  .ui-modal .ui-body {
+    @apply p-6 overflow-y-auto;
+  }
+
+  .ui-modal .ui-footer {
+    @apply px-6 py-4 border-t border-gray-100 flex justify-end gap-3;
+  }
+
+  /* Centered variant */
+  .ui-modal.ui-centered .ui-body {
+    @apply text-center;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-modal {
+    @apply bg-gray-900 text-white;
+  }
+
+  [data-theme="dark"] .ui-modal .ui-header {
+    @apply border-gray-700;
+  }
+
+  [data-theme="dark"] .ui-modal .ui-footer {
+    @apply border-gray-700;
+  }
+}

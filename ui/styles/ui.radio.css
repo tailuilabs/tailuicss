@@ -1,0 +1,68 @@
+@layer components {
+  /* Radio group */
+  .ui-radio-group {
+    @apply flex flex-col gap-2;
+  }
+
+  .ui-radio-group.ui-horizontal {
+    @apply flex-row gap-4;
+  }
+
+  /* Radio item */
+  .ui-radio {
+    @apply inline-flex items-center gap-2 cursor-pointer text-sm text-gray-700;
+  }
+
+  .ui-radio input[type="radio"] {
+    @apply w-4 h-4 border-2 border-gray-300 rounded-full appearance-none cursor-pointer transition-all duration-150;
+  }
+
+  .ui-radio input[type="radio"]:checked {
+    @apply border-blue-600;
+    box-shadow: inset 0 0 0 3px white, inset 0 0 0 6px currentColor;
+    color: theme('colors.blue.600');
+  }
+
+  .ui-radio input[type="radio"]:focus-visible {
+    @apply ring-2 ring-blue-500/20 ring-offset-1;
+  }
+
+  /* Disabled */
+  .ui-radio.ui-disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .ui-radio.ui-disabled input[type="radio"] {
+    @apply cursor-not-allowed;
+  }
+
+  /* Sizes */
+  .ui-radio.ui-sm {
+    @apply text-xs;
+  }
+
+  .ui-radio.ui-sm input[type="radio"] {
+    @apply w-3.5 h-3.5;
+  }
+
+  .ui-radio.ui-lg {
+    @apply text-base;
+  }
+
+  .ui-radio.ui-lg input[type="radio"] {
+    @apply w-5 h-5;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-radio {
+    @apply text-gray-300;
+  }
+
+  [data-theme="dark"] .ui-radio input[type="radio"] {
+    @apply border-gray-600;
+  }
+
+  [data-theme="dark"] .ui-radio input[type="radio"]:checked {
+    box-shadow: inset 0 0 0 3px theme('colors.gray.900'), inset 0 0 0 6px currentColor;
+  }
+}

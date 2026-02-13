@@ -1,0 +1,70 @@
+@layer components {
+  /* Container */
+  .ui-carousel {
+    @apply relative overflow-hidden rounded-xl;
+  }
+
+  /* Track */
+  .ui-carousel .ui-track {
+    @apply flex transition-transform duration-500 ease-out;
+  }
+
+  /* Slide */
+  .ui-carousel .ui-slide {
+    @apply w-full shrink-0;
+  }
+
+  /* Navigation arrows */
+  .ui-carousel .ui-prev,
+  .ui-carousel .ui-next {
+    @apply absolute top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/80 text-gray-800 shadow-md cursor-pointer transition-all duration-200 hover:bg-white hover:shadow-lg;
+  }
+
+  .ui-carousel .ui-prev {
+    @apply left-3;
+  }
+
+  .ui-carousel .ui-next {
+    @apply right-3;
+  }
+
+  /* Dots / indicators */
+  .ui-carousel .ui-dots {
+    @apply absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10;
+  }
+
+  .ui-carousel .ui-dot {
+    @apply w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all duration-200;
+  }
+
+  .ui-carousel .ui-dot.ui-active {
+    @apply bg-white w-6;
+  }
+
+  /* Fade variant */
+  .ui-carousel.ui-fade .ui-track {
+    @apply relative;
+  }
+
+  .ui-carousel.ui-fade .ui-slide {
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+  }
+
+  .ui-carousel.ui-fade .ui-slide.ui-active {
+    @apply opacity-100 relative;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-carousel .ui-prev,
+  [data-theme="dark"] .ui-carousel .ui-next {
+    @apply bg-gray-800/80 text-white hover:bg-gray-800;
+  }
+
+  [data-theme="dark"] .ui-carousel .ui-dot {
+    @apply bg-gray-600;
+  }
+
+  [data-theme="dark"] .ui-carousel .ui-dot.ui-active {
+    @apply bg-white;
+  }
+}

@@ -1,0 +1,100 @@
+@layer components {
+  /* Base */
+  .ui-avatar {
+    @apply inline-flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-medium overflow-hidden shrink-0;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 0.875rem;
+  }
+
+  .ui-avatar img {
+    @apply w-full h-full object-cover;
+  }
+
+  /* Sizes */
+  .ui-avatar.ui-xs {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.625rem;
+  }
+
+  .ui-avatar.ui-sm {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+  }
+
+  .ui-avatar.ui-lg {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.125rem;
+  }
+
+  .ui-avatar.ui-xl {
+    width: 5rem;
+    height: 5rem;
+    font-size: 1.5rem;
+  }
+
+  /* Square */
+  .ui-avatar.ui-square {
+    @apply rounded-lg;
+  }
+
+  /* Ring / border */
+  .ui-avatar.ui-ring {
+    @apply ring-2 ring-white;
+  }
+
+  /* Status indicator */
+  .ui-avatar-status {
+    @apply relative inline-flex;
+  }
+
+  .ui-avatar-status::after {
+    content: '';
+    @apply absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white bg-gray-400;
+  }
+
+  .ui-avatar-status.ui-online::after {
+    @apply bg-green-500;
+  }
+
+  .ui-avatar-status.ui-offline::after {
+    @apply bg-gray-400;
+  }
+
+  .ui-avatar-status.ui-busy::after {
+    @apply bg-red-500;
+  }
+
+  .ui-avatar-status.ui-away::after {
+    @apply bg-yellow-500;
+  }
+
+  /* Group */
+  .ui-avatar-group {
+    @apply flex -space-x-2;
+  }
+
+  .ui-avatar-group .ui-avatar {
+    @apply ring-2 ring-white;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-avatar {
+    @apply bg-gray-700 text-gray-300;
+  }
+
+  [data-theme="dark"] .ui-avatar.ui-ring {
+    @apply ring-gray-900;
+  }
+
+  [data-theme="dark"] .ui-avatar-status::after {
+    @apply border-gray-900;
+  }
+
+  [data-theme="dark"] .ui-avatar-group .ui-avatar {
+    @apply ring-gray-900;
+  }
+}

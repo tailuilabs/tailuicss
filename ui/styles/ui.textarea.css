@@ -1,0 +1,68 @@
+@layer components {
+  /* Base */
+  .ui-textarea {
+    @apply w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm transition-all duration-200 outline-none resize-y;
+    min-height: 5rem;
+  }
+
+  .ui-textarea:focus {
+    @apply border-blue-500 ring-2 ring-blue-500/20;
+  }
+
+  .ui-textarea::placeholder {
+    @apply text-gray-400;
+  }
+
+  /* Error */
+  .ui-textarea.ui-error {
+    @apply border-red-500 text-red-900;
+  }
+
+  .ui-textarea.ui-error:focus {
+    @apply ring-red-500/20 border-red-500;
+  }
+
+  /* Success */
+  .ui-textarea.ui-success {
+    @apply border-green-500;
+  }
+
+  .ui-textarea.ui-success:focus {
+    @apply ring-green-500/20 border-green-500;
+  }
+
+  /* Disabled */
+  .ui-textarea.ui-disabled {
+    @apply bg-gray-100 text-gray-400 cursor-not-allowed resize-none;
+  }
+
+  /* No resize */
+  .ui-textarea.ui-noresize {
+    @apply resize-none;
+  }
+
+  /* Auto-grow placeholder */
+  .ui-textarea.ui-auto {
+    @apply resize-none overflow-hidden;
+  }
+
+  /* Sizes */
+  .ui-textarea.ui-sm {
+    @apply text-xs px-3 py-2;
+    min-height: 3rem;
+  }
+
+  .ui-textarea.ui-lg {
+    @apply text-base px-5 py-4;
+    min-height: 8rem;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-textarea {
+    @apply bg-gray-800 border-gray-600 text-white;
+  }
+
+  [data-theme="dark"] .ui-textarea::placeholder {
+    @apply text-gray-500;
+  }
+}

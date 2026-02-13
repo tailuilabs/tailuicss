@@ -1,0 +1,84 @@
+@layer components {
+  /* Base */
+  .ui-progress {
+    @apply w-full bg-gray-200 rounded-full overflow-hidden;
+    height: 0.5rem;
+  }
+
+  .ui-progress .ui-bar {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+    @style {
+      width: var(--ui-progress-value, 0%);
+    }
+  }
+
+  /* Colors */
+  .ui-progress .ui-bar {
+    @apply bg-blue-600;
+  }
+
+  .ui-progress.ui-success .ui-bar {
+    @apply bg-green-500;
+  }
+
+  .ui-progress.ui-warning .ui-bar {
+    @apply bg-yellow-500;
+  }
+
+  .ui-progress.ui-danger .ui-bar {
+    @apply bg-red-500;
+  }
+
+  /* Sizes */
+  .ui-progress.ui-sm {
+    height: 0.25rem;
+  }
+
+  .ui-progress.ui-lg {
+    height: 0.75rem;
+  }
+
+  .ui-progress.ui-xl {
+    height: 1rem;
+  }
+
+  /* Striped */
+  .ui-progress.ui-striped .ui-bar {
+    background-image: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.15) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0.15) 75%,
+      transparent 75%,
+      transparent
+    );
+    background-size: 1rem 1rem;
+  }
+
+  /* Animated */
+  .ui-progress.ui-animated .ui-bar {
+    animation: ui-progress-stripes 1s linear infinite;
+  }
+
+  @keyframes ui-progress-stripes {
+    from { background-position: 1rem 0; }
+    to { background-position: 0 0; }
+  }
+
+  /* Label */
+  .ui-progress.ui-labeled {
+    @apply relative;
+    height: 1.25rem;
+  }
+
+  .ui-progress.ui-labeled .ui-bar {
+    @apply flex items-center justify-center text-xs font-medium text-white;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-progress {
+    @apply bg-gray-700;
+  }
+}

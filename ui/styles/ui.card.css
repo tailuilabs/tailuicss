@@ -1,0 +1,96 @@
+@layer components {
+  /* Base */
+  .ui-card {
+    @apply rounded-xl border border-gray-200 bg-white text-gray-800 overflow-hidden;
+  }
+
+  /* Elevated */
+  .ui-card.ui-elevated {
+    @apply shadow-lg;
+  }
+
+  /* Outlined */
+  .ui-card.ui-outlined {
+    @apply border-2 border-gray-300 shadow-none;
+  }
+
+  /* Flat */
+  .ui-card.ui-flat {
+    @apply border-none shadow-none bg-gray-50;
+  }
+
+  /* Hoverable */
+  .ui-hoverable {
+    @apply transition-all duration-200;
+  }
+
+  .ui-card.ui-hoverable:hover {
+    @apply shadow-2xl -translate-y-1;
+  }
+
+  /* Interactive (clickable) */
+  .ui-card.ui-interactive {
+    @apply cursor-pointer transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md;
+  }
+
+  /* Slots */
+  .ui-header {
+    @apply flex items-center justify-between px-5 py-4 border-b border-gray-100 font-semibold;
+  }
+
+  .ui-body {
+    @apply p-5;
+  }
+
+  .ui-footer {
+    @apply px-5 py-4 border-t border-gray-100 flex justify-end gap-3;
+  }
+
+  /* Sticky header */
+  .ui-sticky {
+    @apply sticky top-0 bg-inherit z-10;
+  }
+
+  /* Card hover → header color change */
+  .ui-card.ui-hoverable:hover .ui-header,
+  .ui-card.ui-interactive:hover .ui-header {
+    @apply text-blue-600;
+  }
+
+  /* Compact variant */
+  .ui-card.ui-compact .ui-header {
+    @apply px-4 py-2 text-sm;
+  }
+
+  .ui-card.ui-compact .ui-body {
+    @apply p-4;
+  }
+
+  .ui-card.ui-compact .ui-footer {
+    @apply px-4 py-2;
+  }
+
+  /* Responsive footer */
+  @media (max-width: 640px) {
+    .ui-footer {
+      @apply flex-col;
+    }
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-card {
+    @apply bg-gray-900 text-white border-gray-700;
+  }
+
+  [data-theme="dark"] .ui-header {
+    @apply border-gray-700;
+  }
+
+  [data-theme="dark"] .ui-footer {
+    @apply border-gray-700;
+  }
+
+  [data-theme="dark"] .ui-card.ui-flat {
+    @apply bg-gray-800;
+  }
+}

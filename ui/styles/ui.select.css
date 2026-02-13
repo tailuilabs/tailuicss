@@ -1,0 +1,125 @@
+@layer components {
+  /* Base */
+  .ui-select {
+    @apply relative w-full;
+  }
+
+  /* Trigger */
+  .ui-select .ui-select-trigger {
+    @apply w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm cursor-pointer transition-all duration-200;
+  }
+
+  .ui-select .ui-select-trigger:focus,
+  .ui-select.ui-open .ui-select-trigger {
+    @apply border-blue-500 ring-2 ring-blue-500/20;
+  }
+
+  .ui-select .ui-select-trigger .ui-placeholder {
+    @apply text-gray-400;
+  }
+
+  .ui-select .ui-select-trigger::after {
+    content: '';
+    @apply w-2 h-2 border-r-2 border-b-2 border-gray-400 rotate-45 transition-transform duration-200 shrink-0 ml-2;
+  }
+
+  .ui-select.ui-open .ui-select-trigger::after {
+    @apply -rotate-[135deg];
+  }
+
+  /* Dropdown */
+  .ui-select .ui-select-menu {
+    @apply absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg py-1 max-h-60 overflow-y-auto opacity-0 invisible transition-all duration-150;
+  }
+
+  .ui-select.ui-open .ui-select-menu {
+    @apply opacity-100 visible;
+  }
+
+  /* Option */
+  .ui-select .ui-option {
+    @apply flex items-center gap-2 px-4 py-2 text-sm text-gray-700 cursor-pointer transition-colors duration-100 hover:bg-gray-50;
+  }
+
+  .ui-select .ui-option.ui-selected {
+    @apply bg-blue-50 text-blue-700 font-medium;
+  }
+
+  .ui-select .ui-option.ui-disabled {
+    @apply opacity-50 cursor-not-allowed hover:bg-transparent;
+  }
+
+  /* Group */
+  .ui-select .ui-option-group {
+    @apply px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider;
+  }
+
+  /* States */
+  .ui-select.ui-error .ui-select-trigger {
+    @apply border-red-500;
+  }
+
+  .ui-select.ui-disabled .ui-select-trigger {
+    @apply bg-gray-100 text-gray-400 cursor-not-allowed;
+  }
+
+  /* Sizes */
+  .ui-select.ui-sm .ui-select-trigger {
+    @apply text-xs px-3 py-1.5;
+  }
+
+  .ui-select.ui-lg .ui-select-trigger {
+    @apply text-base px-5 py-3;
+  }
+
+  /* Search variant */
+  .ui-select .ui-search-input {
+    @apply w-full px-4 py-2 border-b border-gray-100 text-sm outline-none bg-transparent;
+  }
+
+  .ui-select .ui-search-input::placeholder {
+    @apply text-gray-400;
+  }
+
+  .ui-select .ui-no-results {
+    @apply px-4 py-3 text-sm text-gray-400 text-center;
+  }
+
+  /* Multi-select */
+  .ui-select.ui-multi .ui-select-trigger {
+    @apply flex-wrap gap-1;
+  }
+
+  .ui-select .ui-tag {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-md;
+  }
+
+  .ui-select .ui-tag .ui-remove {
+    @apply cursor-pointer opacity-60 hover:opacity-100;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-select .ui-select-trigger {
+    @apply bg-gray-800 border-gray-600 text-white;
+  }
+
+  [data-theme="dark"] .ui-select .ui-select-menu {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  [data-theme="dark"] .ui-select .ui-option {
+    @apply text-gray-300 hover:bg-gray-700;
+  }
+
+  [data-theme="dark"] .ui-select .ui-option.ui-selected {
+    @apply bg-blue-900/30 text-blue-300;
+  }
+
+  [data-theme="dark"] .ui-select .ui-search-input {
+    @apply border-gray-700 text-white;
+  }
+
+  [data-theme="dark"] .ui-select .ui-tag {
+    @apply bg-blue-900/50 text-blue-300;
+  }
+}

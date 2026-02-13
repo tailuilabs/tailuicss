@@ -1,0 +1,95 @@
+@layer components {
+  /* Container */
+  .ui-toast-container {
+    @apply fixed z-50 flex flex-col gap-3 pointer-events-none;
+    @style {
+      --ui-toast-offset: 1rem;
+    }
+  }
+
+  .ui-toast-container.ui-top-right {
+    @apply top-4 right-4;
+  }
+
+  .ui-toast-container.ui-top-left {
+    @apply top-4 left-4;
+  }
+
+  .ui-toast-container.ui-bottom-right {
+    @apply bottom-4 right-4;
+  }
+
+  .ui-toast-container.ui-bottom-left {
+    @apply bottom-4 left-4;
+  }
+
+  .ui-toast-container.ui-top-center {
+    @apply top-4 left-1/2 -translate-x-1/2;
+  }
+
+  .ui-toast-container.ui-bottom-center {
+    @apply bottom-4 left-1/2 -translate-x-1/2;
+  }
+
+  /* Base */
+  .ui-toast {
+    @apply flex items-start gap-3 px-4 py-3 rounded-xl shadow-lg border bg-white text-gray-800 text-sm pointer-events-auto min-w-[300px] max-w-[420px];
+    animation: ui-toast-in 0.3s ease-out;
+  }
+
+  @keyframes ui-toast-in {
+    from { opacity: 0; transform: translateY(-0.5rem) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Variants */
+  .ui-toast.ui-success {
+    @apply border-green-200 bg-green-50 text-green-800;
+  }
+
+  .ui-toast.ui-danger {
+    @apply border-red-200 bg-red-50 text-red-800;
+  }
+
+  .ui-toast.ui-warning {
+    @apply border-yellow-200 bg-yellow-50 text-yellow-800;
+  }
+
+  .ui-toast.ui-info {
+    @apply border-blue-200 bg-blue-50 text-blue-800;
+  }
+
+  /* Slots */
+  .ui-toast .ui-title {
+    @apply font-semibold text-sm;
+  }
+
+  .ui-toast .ui-message {
+    @apply text-xs opacity-80;
+  }
+
+  .ui-toast .ui-close {
+    @apply ml-auto cursor-pointer opacity-50 hover:opacity-100 transition-opacity;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-toast {
+    @apply bg-gray-800 text-white border-gray-700;
+  }
+
+  [data-theme="dark"] .ui-toast.ui-success {
+    @apply bg-green-900/50 text-green-300 border-green-800;
+  }
+
+  [data-theme="dark"] .ui-toast.ui-danger {
+    @apply bg-red-900/50 text-red-300 border-red-800;
+  }
+
+  [data-theme="dark"] .ui-toast.ui-warning {
+    @apply bg-yellow-900/50 text-yellow-300 border-yellow-800;
+  }
+
+  [data-theme="dark"] .ui-toast.ui-info {
+    @apply bg-blue-900/50 text-blue-300 border-blue-800;
+  }
+}

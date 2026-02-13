@@ -1,0 +1,85 @@
+@layer components {
+  /* Base */
+  .ui-input {
+    @apply w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm transition-all duration-200 outline-none;
+    @style {
+      --ui-input-ring: theme('colors.blue.500');
+    }
+  }
+
+  .ui-input:focus {
+    @apply border-blue-500 ring-2 ring-blue-500/20;
+  }
+
+  .ui-input::placeholder {
+    @apply text-gray-400;
+  }
+
+  /* Error */
+  .ui-input.ui-error {
+    @apply border-red-500 text-red-900;
+  }
+
+  .ui-input.ui-error:focus {
+    @apply ring-red-500/20 border-red-500;
+  }
+
+  /* Success */
+  .ui-input.ui-success {
+    @apply border-green-500;
+  }
+
+  .ui-input.ui-success:focus {
+    @apply ring-green-500/20 border-green-500;
+  }
+
+  /* Disabled */
+  .ui-input.ui-disabled {
+    @apply bg-gray-100 text-gray-400 cursor-not-allowed;
+  }
+
+  /* Sizes */
+  .ui-input.ui-sm {
+    @apply text-xs px-3 py-1.5;
+  }
+
+  .ui-input.ui-lg {
+    @apply text-base px-5 py-3;
+  }
+
+  /* Label */
+  .ui-label {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+
+  /* Helper text */
+  .ui-helper {
+    @apply text-xs text-gray-500 mt-1;
+  }
+
+  .ui-helper.ui-error {
+    @apply text-red-500;
+  }
+
+  /* Input group */
+  .ui-input-group {
+    @apply flex flex-col gap-1;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-input {
+    @apply bg-gray-800 border-gray-600 text-white;
+  }
+
+  [data-theme="dark"] .ui-input::placeholder {
+    @apply text-gray-500;
+  }
+
+  [data-theme="dark"] .ui-label {
+    @apply text-gray-300;
+  }
+
+  [data-theme="dark"] .ui-helper {
+    @apply text-gray-400;
+  }
+}

@@ -1,0 +1,75 @@
+@layer components {
+  /* Base */
+  .ui-alert {
+    @apply flex items-start gap-3 px-4 py-3 rounded-xl border text-sm;
+  }
+
+  /* Variants */
+  .ui-alert.ui-info {
+    @apply bg-blue-50 border-blue-200 text-blue-800;
+  }
+
+  .ui-alert.ui-success {
+    @apply bg-green-50 border-green-200 text-green-800;
+  }
+
+  .ui-alert.ui-warning {
+    @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+  }
+
+  .ui-alert.ui-danger {
+    @apply bg-red-50 border-red-200 text-red-800;
+  }
+
+  /* Slots */
+  .ui-alert .ui-title {
+    @apply font-semibold;
+  }
+
+  .ui-alert .ui-message {
+    @apply opacity-80;
+  }
+
+  .ui-alert .ui-close {
+    @apply ml-auto cursor-pointer opacity-50 hover:opacity-100 transition-opacity;
+  }
+
+  /* Outlined variant */
+  .ui-alert.ui-outlined {
+    @apply bg-transparent;
+  }
+
+  /* Filled variant */
+  .ui-alert.ui-filled.ui-info {
+    @apply bg-blue-600 text-white border-blue-600;
+  }
+
+  .ui-alert.ui-filled.ui-success {
+    @apply bg-green-600 text-white border-green-600;
+  }
+
+  .ui-alert.ui-filled.ui-warning {
+    @apply bg-yellow-500 text-white border-yellow-500;
+  }
+
+  .ui-alert.ui-filled.ui-danger {
+    @apply bg-red-600 text-white border-red-600;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-alert.ui-info {
+    @apply bg-blue-900/30 border-blue-800 text-blue-300;
+  }
+
+  [data-theme="dark"] .ui-alert.ui-success {
+    @apply bg-green-900/30 border-green-800 text-green-300;
+  }
+
+  [data-theme="dark"] .ui-alert.ui-warning {
+    @apply bg-yellow-900/30 border-yellow-800 text-yellow-300;
+  }
+
+  [data-theme="dark"] .ui-alert.ui-danger {
+    @apply bg-red-900/30 border-red-800 text-red-300;
+  }
+}

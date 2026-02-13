@@ -1,0 +1,70 @@
+@layer components {
+  /* Container */
+  .ui-accordion {
+    @apply border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-200;
+  }
+
+  /* Item */
+  .ui-accordion-item {
+    @apply bg-white;
+  }
+
+  /* Trigger */
+  .ui-accordion-trigger {
+    @apply w-full flex items-center justify-between px-5 py-4 text-left text-sm font-medium text-gray-800 cursor-pointer transition-colors duration-150 hover:bg-gray-50;
+  }
+
+  .ui-accordion-trigger::after {
+    content: '';
+    @apply w-2 h-2 border-r-2 border-b-2 border-current rotate-45 transition-transform duration-200 shrink-0 ml-4;
+  }
+
+  /* Open state */
+  .ui-accordion-item.ui-open .ui-accordion-trigger {
+    @apply font-semibold;
+  }
+
+  .ui-accordion-item.ui-open .ui-accordion-trigger::after {
+    @apply -rotate-[135deg];
+  }
+
+  /* Content */
+  .ui-accordion-content {
+    @apply px-5 pb-4 text-sm text-gray-600 leading-relaxed;
+  }
+
+  /* Flush (no border) */
+  .ui-accordion.ui-flush {
+    @apply border-none rounded-none;
+  }
+
+  /* Separated */
+  .ui-accordion.ui-separated {
+    @apply border-none divide-y-0 space-y-2;
+  }
+
+  .ui-accordion.ui-separated .ui-accordion-item {
+    @apply border border-gray-200 rounded-lg overflow-hidden;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-accordion {
+    @apply border-gray-700 divide-gray-700;
+  }
+
+  [data-theme="dark"] .ui-accordion-item {
+    @apply bg-gray-900;
+  }
+
+  [data-theme="dark"] .ui-accordion-trigger {
+    @apply text-white hover:bg-gray-800;
+  }
+
+  [data-theme="dark"] .ui-accordion-content {
+    @apply text-gray-400;
+  }
+
+  [data-theme="dark"] .ui-accordion.ui-separated .ui-accordion-item {
+    @apply border-gray-700;
+  }
+}

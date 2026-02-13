@@ -1,0 +1,84 @@
+@layer components {
+  /* Base */
+  .ui-toggle {
+    @apply inline-flex items-center gap-2 cursor-pointer text-sm text-gray-700;
+  }
+
+  .ui-toggle .ui-track {
+    @apply relative w-10 h-6 bg-gray-300 rounded-full transition-colors duration-200;
+  }
+
+  .ui-toggle .ui-track::after {
+    @apply absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200;
+    content: '';
+  }
+
+  /* Checked state (via input:checked + .ui-track) */
+  .ui-toggle input[type="checkbox"] {
+    @apply sr-only;
+  }
+
+  .ui-toggle input[type="checkbox"]:checked + .ui-track {
+    @apply bg-blue-600;
+  }
+
+  .ui-toggle input[type="checkbox"]:checked + .ui-track::after {
+    @apply translate-x-4;
+  }
+
+  .ui-toggle input[type="checkbox"]:focus-visible + .ui-track {
+    @apply ring-2 ring-blue-500/20 ring-offset-1;
+  }
+
+  /* Colors */
+  .ui-toggle.ui-success input[type="checkbox"]:checked + .ui-track {
+    @apply bg-green-500;
+  }
+
+  .ui-toggle.ui-danger input[type="checkbox"]:checked + .ui-track {
+    @apply bg-red-500;
+  }
+
+  /* Disabled */
+  .ui-toggle.ui-disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .ui-toggle.ui-disabled .ui-track {
+    @apply cursor-not-allowed;
+  }
+
+  /* Sizes */
+  .ui-toggle.ui-sm .ui-track {
+    @apply w-8 h-5;
+  }
+
+  .ui-toggle.ui-sm .ui-track::after {
+    @apply w-4 h-4;
+  }
+
+  .ui-toggle.ui-sm input[type="checkbox"]:checked + .ui-track::after {
+    @apply translate-x-3;
+  }
+
+  .ui-toggle.ui-lg .ui-track {
+    @apply w-14 h-8;
+  }
+
+  .ui-toggle.ui-lg .ui-track::after {
+    @apply w-7 h-7;
+  }
+
+  .ui-toggle.ui-lg input[type="checkbox"]:checked + .ui-track::after {
+    @apply translate-x-6;
+  }
+
+  /* Dark mode */
+  [data-theme="dark"] .ui-toggle {
+    @apply text-gray-300;
+  }
+
+  [data-theme="dark"] .ui-toggle .ui-track {
+    @apply bg-gray-600;
+  }
+}
