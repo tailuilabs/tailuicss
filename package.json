@@ -1,0 +1,80 @@
+{
+  "name": "@tailui-css/core",
+  "version": "1.0.0",
+  "description": "A semantic CSS-first layer on top of Tailwind CSS. Write class=\"ui-button ui-primary\" instead of 40 utility classes.",
+  "main": "src/plugin/index.js",
+  "types": "src/plugin/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/plugin/index.d.ts",
+      "default": "./src/plugin/index.js"
+    },
+    "./postcss": {
+      "types": "./postcss.d.ts",
+      "default": "./postcss.js"
+    },
+    "./cli": "./src/cli/index.js"
+  },
+  "bin": {
+    "tailui": "./src/cli/index.js"
+  },
+  "files": [
+    "src/",
+    "ui/",
+    "postcss.js",
+    "postcss.d.ts",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss --watch",
+    "build": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss",
+    "demo": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss && open demo/index.html"
+  },
+  "keywords": [
+    "tailwindcss",
+    "tailwind",
+    "css",
+    "design-system",
+    "ui",
+    "semantic",
+    "components",
+    "postcss",
+    "plugin",
+    "utility-first",
+    "css-framework"
+  ],
+  "author": "Hosby",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hosby/tailui.git"
+  },
+  "homepage": "https://tailui.dev",
+  "bugs": {
+    "url": "https://github.com/hosby/tailui/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/hosby"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "peerDependencies": {
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0"
+  },
+  "devDependencies": {
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.17"
+  }
+}

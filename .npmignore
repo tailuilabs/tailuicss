@@ -1,0 +1,23 @@
+# Development
+node_modules/
+demo/
+*.tgz
+
+# Config files (dev only)
+tailwind.config.js
+postcss.config.js
+ui.config.json
+
+# Lock files
+package-lock.json
+
+# OS / Editor
+.DS_Store
+.npmrc
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
