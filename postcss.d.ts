@@ -13,7 +13,7 @@ interface TailUIPostCSSOptions {
  *
  * @example
  * // postcss.config.js
- * plugins: { '@tailui-css/core/postcss': {}, tailwindcss: {} }
+ * plugins: { '@tailuicss/core/postcss': {}, tailwindcss: {} }
  */
 declare const tailuiPostCSS: PluginCreator<TailUIPostCSSOptions>;
 export = tailuiPostCSS;

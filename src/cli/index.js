@@ -392,10 +392,10 @@ program
     console.log('\n  ✅ TailUI initialized!\n');
     console.log('  Next steps:\n');
     console.log('    1. Add to tailwind.config.js:');
-    console.log(`       plugins: [require('@tailui-css/core')()]`);
+    console.log(`       plugins: [require('@tailuicss/core')()]`);
     console.log('');
     console.log('    2. Add to postcss.config.js:');
-    console.log(`       plugins: { '@tailui-css/core/postcss': {}, tailwindcss: {} }`);
+    console.log(`       plugins: { '@tailuicss/core/postcss': {}, tailwindcss: {} }`);
     console.log('');
     console.log('    3. Your CSS file just needs:');
     console.log('       @tailwind base;');

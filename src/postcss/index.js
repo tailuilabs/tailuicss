@@ -18,7 +18,7 @@ const { resolveConfig } = require('../config');
  *   @tailwind utilities;
  * 
  * Usage in postcss.config.js:
- *   plugins: { '@tailui-css/core/postcss': {}, tailwindcss: {} }
+ *   plugins: { '@tailuicss/core/postcss': {}, tailwindcss: {} }
  */
 module.exports = (options = {}) => {
   const { stylesDir } = resolveConfig(options);

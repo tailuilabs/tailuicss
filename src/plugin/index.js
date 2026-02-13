@@ -11,12 +11,12 @@ const { resolveConfig } = require('../config');
  * detected and not tree-shaken.
  * 
  * The actual CSS injection is handled by the TailUI PostCSS plugin
- * (require('@tailui-css/core/postcss')) which auto-injects styles in the
+ * (require('@tailuicss/core/postcss')) which auto-injects styles in the
  * correct position relative to @tailwind directives.
  * 
  * Setup:
  *   // tailwind.config.js
- *   plugins: [require('@tailui-css/core')()]
+ *   plugins: [require('@tailuicss/core')()]
  */
 module.exports = plugin.withOptions(function (options = {}) {
   const { stylesDir } = resolveConfig(options);

@@ -7,8 +7,8 @@
 A semantic CSS-first layer on top of Tailwind CSS.
 Write `class="ui-button ui-primary"` instead of a wall of utility classes.
 
-[![npm version](https://img.shields.io/npm/v/@tailui-css/core.svg?style=flat-square&color=0284c7)](https://www.npmjs.com/package/@tailui-css/core)
-[![license](https://img.shields.io/npm/l/@tailui-css/core.svg?style=flat-square&color=0284c7)](https://github.com/hosby/tailui/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/@tailuicss/core.svg?style=flat-square&color=0284c7)](https://www.npmjs.com/package/@tailuicss/core)
+[![license](https://img.shields.io/npm/l/@tailuicss/core.svg?style=flat-square&color=0284c7)](https://github.com/tailuicss/tailui/blob/main/LICENSE)
 [![tailwindcss](https://img.shields.io/badge/tailwindcss-%3E%3D3.4-0284c7?style=flat-square)](https://tailwindcss.com)
 [![zero runtime](https://img.shields.io/badge/JS_runtime-0kb-10b981?style=flat-square)](.)
 
@@ -48,19 +48,19 @@ TailUI requires **Tailwind CSS** and **PostCSS** as peer dependencies. Install w
 **No Tailwind CSS yet?** Install everything:
 
 ```bash
-npm install @tailui-css/core tailwindcss postcss autoprefixer
+npm install @tailuicss/core tailwindcss postcss autoprefixer
 ```
 
 **Tailwind CSS installed, but no PostCSS?** Add PostCSS:
 
 ```bash
-npm install @tailui-css/core postcss
+npm install @tailuicss/core postcss
 ```
 
 **Tailwind CSS + PostCSS already installed?** Just add TailUI:
 
 ```bash
-npm install @tailui-css/core
+npm install @tailuicss/core
 ```
 
 ### 2. Configure
@@ -69,7 +69,7 @@ npm install @tailui-css/core
 // tailwind.config.js
 module.exports = {
   content: ["./src/**/*.{html,js,jsx,tsx}"],
-  plugins: [require('@tailui-css/core')()],
+  plugins: [require('@tailuicss/core')()],
 };
 ```
 
@@ -77,7 +77,7 @@ module.exports = {
 // postcss.config.js
 module.exports = {
   plugins: {
-    '@tailui-css/core/postcss': {},
+    '@tailuicss/core/postcss': {},
     tailwindcss: {},
   },
 };
@@ -435,7 +435,7 @@ your-project/
 Contributions are welcome! Please open an issue or submit a pull request.
 
 ```bash
-git clone https://github.com/hosby/tailui.git
+git clone https://github.com/tailuicss/tailui.git
 cd tailui
 npm install
 npm run dev    # Watch mode
