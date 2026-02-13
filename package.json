@@ -43,17 +43,41 @@
     "postcss",
     "plugin",
     "utility-first",
-    "css-framework"
+    "css-framework",
+    "tailwind",
+    "tailwindcss",
+    "csstailwind",
+    "reacttailwind",
+    "nextjstailwind",
+    "tailwind plugin",
+    "tailwind vue",
+    "tailwind astro",
+    "tailwind svelte",
+    "tailwind nuxt",
+    "tailwind laravel",
+    "tailwind rails",
+    "front-end",
+    "theme",
+    "nextjs",
+    "vue",
+    "component",
+    "framework",
+    "library",
+    "astro",
+    "svelte",
+    "nuxt",
+    "laravel",
+    "rails"
   ],
-  "author": "Hosby",
+  "author": "TailUI CSS",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hosby/tailui.git"
+    "url": "git+https://github.com/tailui-css/tailui.git"
   },
-  "homepage": "https://tailui.dev",
+  "homepage": "https://tailuicss.com",
   "bugs": {
-    "url": "https://github.com/hosby/tailui/issues"
+    "url": "https://github.com/tailui-css/tailui/issues"
   },
   "publishConfig": {
     "access": "public"
@@ -64,7 +88,7 @@
   },
   "funding": {
     "type": "github",
-    "url": "https://github.com/sponsors/hosby"
+    "url": "https://github.com/sponsors/tailui-css"
   },
   "dependencies": {
     "commander": "^12.1.0"
