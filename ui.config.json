@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "stack": "html",
+  "directory": "ui",
+  "stylesDir": "./ui/styles",
+  "componentsDir": "./src/components/ui",
+  "components": {
+    "accordion": ["flush", "separated"],
+    "alert": ["info", "success", "warning", "danger", "outlined", "filled"],
+    "avatar": ["xs", "sm", "lg", "xl", "square", "ring"],
+    "badge": ["primary", "secondary", "success", "danger", "warning", "dot", "square"],
+    "button": ["primary", "secondary", "danger", "ghost", "outline", "sm", "lg", "xl", "disabled", "loading", "full", "icon"],
+    "card": ["elevated", "outlined", "flat", "hoverable", "interactive", "compact"],
+    "carousel": ["fade"],
+    "dropdown": ["right", "up"],
+    "file-input": ["compact", "error", "disabled"],
+    "input": ["error", "success", "disabled", "sm", "lg"],
+    "list": ["interactive", "flush", "compact"],
+    "modal": ["sm", "lg", "xl", "full", "centered"],
+    "progress": ["success", "warning", "danger", "sm", "lg", "xl", "striped", "animated", "labeled"],
+    "radio": ["horizontal", "disabled", "sm", "lg"],
+    "rate": ["readonly", "sm", "lg", "half", "disabled"],
+    "select": ["error", "disabled", "sm", "lg", "multi"],
+    "textarea": ["error", "success", "disabled", "noresize", "auto", "sm", "lg"],
+    "toast": ["success", "danger", "warning", "info"],
+    "toggle": ["success", "danger", "disabled", "sm", "lg"],
+    "tooltip": ["bottom", "left", "right"]
+  },
+  "slots": [
+    "header", "body", "footer", "sticky",
+    "bar", "track", "tip", "trigger", "menu",
+    "title", "message", "close", "icon",
+    "leading", "content", "trailing", "subtitle",
+    "placeholder", "hint", "dot", "dots",
+    "prev", "next", "slide", "star",
+    "search-input", "option", "tag"
+  ],
+  "variables": {
+    "overlay": ["--ui-overlay-blur"],
+    "modal": ["--ui-modal-max-height"],
+    "input": ["--ui-input-ring"],
+    "progress": ["--ui-progress-value"],
+    "toast": ["--ui-toast-offset"]
+  }
+}

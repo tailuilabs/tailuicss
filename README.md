@@ -446,4 +446,4 @@ npm run demo   # Build + open demo
 
 ## License
 
-[MIT](LICENSE) — Built by [Hosby](https://github.com/hosby)
+[MIT](LICENSE) — Built with love ❤️

@@ -1,0 +1,21 @@
+/* TailUI — Component Styles Entry Point */
+@import "./ui.accordion.css";
+@import "./ui.alert.css";
+@import "./ui.avatar.css";
+@import "./ui.badge.css";
+@import "./ui.button.css";
+@import "./ui.card.css";
+@import "./ui.carousel.css";
+@import "./ui.dropdown.css";
+@import "./ui.file-input.css";
+@import "./ui.input.css";
+@import "./ui.list.css";
+@import "./ui.modal.css";
+@import "./ui.progress.css";
+@import "./ui.radio.css";
+@import "./ui.rate.css";
+@import "./ui.select.css";
+@import "./ui.textarea.css";
+@import "./ui.toast.css";
+@import "./ui.toggle.css";
+@import "./ui.tooltip.css";

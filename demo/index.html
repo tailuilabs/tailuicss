@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TailUI — Demo</title>
+  <link rel="stylesheet" href="dist/output.css">
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .demo-section { margin-bottom: 3rem; }
+    .demo-section h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #1e293b; }
+    .demo-section h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: #64748b; }
+    .demo-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem; }
+    .demo-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .demo-header { text-align: center; margin-bottom: 3rem; padding: 3rem 0; border-bottom: 1px solid #e2e8f0; }
+    .demo-header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .demo-header p { color: #64748b; font-size: 1.1rem; margin-top: 0.5rem; }
+    .code-preview { background: #1e293b; color: #e2e8f0; padding: 1rem 1.5rem; border-radius: 0.75rem; font-family: 'Fira Code', monospace; font-size: 0.85rem; margin-top: 0.75rem; overflow-x: auto; }
+    .code-preview .tag { color: #f472b6; }
+    .code-preview .attr { color: #38bdf8; }
+    .code-preview .val { color: #a5f3fc; }
+    .separator { border: none; border-top: 1px solid #e2e8f0; margin: 2rem 0; }
+    .theme-toggle { position: fixed; top: 1rem; right: 1rem; z-index: 100; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+
+  <!-- Theme Toggle -->
+  <div class="theme-toggle">
+    <button class="ui-button ui-secondary ui-sm" onclick="toggleTheme()">Toggle Dark Mode</button>
+  </div>
+
+  <div class="demo-container">
+
+    <!-- Header -->
+    <div class="demo-header">
+      <h1>TailUI</h1>
+      <p>A semantic CSS-first layer on top of TailwindCSS</p>
+      <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.25rem;">
+        Write <code style="background:#f1f5f9; padding: 2px 6px; border-radius: 4px; color: #3b82f6;">class="ui-button ui-primary"</code> instead of
+        <code style="background:#f1f5f9; padding: 2px 6px; border-radius: 4px; color: #ef4444;">class="px-4 py-2 bg-blue-600 text-white rounded-lg..."</code>
+      </p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- BUTTONS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="demo-section">
+      <h2>Buttons</h2>
+
+      <h3>Variants</h3>
+      <div class="demo-grid">
+        <button class="ui-button ui-primary">Primary</button>
+        <button class="ui-button ui-secondary">Secondary</button>
+        <button class="ui-button ui-danger">Danger</button>
+        <button class="ui-button ui-ghost">Ghost</button>
+        <button class="ui-button ui-outline">Outline</button>
+      </div>
+      <div class="code-preview">
+        <span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="val">"ui-button ui-primary"</span><span class="tag">&gt;</span>Primary<span class="tag">&lt;/button&gt;</span>
+      </div>
+
+      <hr class="separator">
+
+      <h3>Sizes</h3>
+      <div class="demo-grid">
+        <button class="ui-button ui-primary ui-sm">Small</button>
+        <button class="ui-button ui-primary">Default</button>
+        <button class="ui-button ui-primary ui-lg">Large</button>
+        <button class="ui-button ui-primary ui-xl">Extra Large</button>
+      </div>
+      <div class="code-preview">
+        <span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="val">"ui-button ui-primary ui-lg"</span><span class="tag">&gt;</span>Large<span class="tag">&lt;/button&gt;</span>
+      </div>
+
+      <hr class="separator">
+
+      <h3>States</h3>
+      <div class="demo-grid">
+        <button class="ui-button ui-primary ui-disabled">Disabled</button>
+        <button class="ui-button ui-primary ui-loading">Loading...</button>
+        <button class="ui-button ui-danger ui-full">Full Width</button>
+      </div>
+
+      <hr class="separator">
+
+      <h3>Composition libre</h3>
+      <div class="demo-grid">
+        <button class="ui-button ui-ghost ui-lg">Ghost + Large</button>
+        <button class="ui-button ui-outline ui-sm">Outline + Small</button>
+        <button class="ui-button ui-danger ui-lg ui-full">Danger + Large + Full</button>
+      </div>
+      <div class="code-preview">
+        <span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="val">"ui-button ui-danger ui-lg ui-full"</span><span class="tag">&gt;</span>Danger + Large + Full<span class="tag">&lt;/button&gt;</span><br>
+        <span style="color: #64748b;">/* Composition libre — pas de hiérarchie forcée */</span>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- BADGES -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="demo-section">
+      <h2>Badges</h2>
+
+      <div class="demo-grid">
+        <span class="ui-badge ui-primary">Primary</span>
+        <span class="ui-badge ui-secondary">Secondary</span>
+        <span class="ui-badge ui-success">Success</span>
+        <span class="ui-badge ui-danger">Danger</span>
+        <span class="ui-badge ui-warning">Warning</span>
+      </div>
+
+      <h3>With dot indicator</h3>
+      <div class="demo-grid">
+        <span class="ui-badge ui-success ui-dot">Online</span>
+        <span class="ui-badge ui-danger ui-dot">Offline</span>
+        <span class="ui-badge ui-warning ui-dot">Away</span>
+      </div>
+      <div class="code-preview">
+        <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="val">"ui-badge ui-success ui-dot"</span><span class="tag">&gt;</span>Online<span class="tag">&lt;/span&gt;</span>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- INPUTS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="demo-section">
+      <h2>Inputs</h2>
+
+      <div style="max-width: 400px; display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="ui-input-group">
+          <label class="ui-label">Email</label>
+          <input class="ui-input" type="email" placeholder="you@example.com">
+          <span class="ui-helper">We'll never share your email.</span>
+        </div>
+
+        <div class="ui-input-group">
+          <label class="ui-label">Password (error)</label>
+          <input class="ui-input ui-error" type="password" placeholder="••••••••" value="123">
+          <span class="ui-helper ui-error">Password must be at least 8 characters.</span>
+        </div>
+
+        <div class="ui-input-group">
+          <label class="ui-label">Username (success)</label>
+          <input class="ui-input ui-success" type="text" value="hosby" placeholder="username">
+          <span class="ui-helper">Username is available!</span>
+        </div>
+
+        <div class="ui-input-group">
+          <label class="ui-label">Disabled</label>
+          <input class="ui-input ui-disabled" type="text" value="Cannot edit" disabled>
+        </div>
+
+        <h3>Sizes</h3>
+        <input class="ui-input ui-sm" placeholder="Small input">
+        <input class="ui-input" placeholder="Default input">
+        <input class="ui-input ui-lg" placeholder="Large input">
+      </div>
+      <div class="code-preview" style="max-width: 400px;">
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ui-input-group"</span><span class="tag">&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="val">"ui-label"</span><span class="tag">&gt;</span>Email<span class="tag">&lt;/label&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;input</span> <span class="attr">class</span>=<span class="val">"ui-input"</span><span class="tag"> /&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="val">"ui-helper"</span><span class="tag">&gt;</span>Help text<span class="tag">&lt;/span&gt;</span><br>
+        <span class="tag">&lt;/div&gt;</span>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CARDS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="demo-section">
+      <h2>Cards</h2>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+
+        <!-- Default Card -->
+        <div class="ui-card">
+          <div class="ui-header">Default Card</div>
+          <div class="ui-body">
+            <p>A simple card with header, body, and footer slots.</p>
+          </div>
+          <div class="ui-footer">
+            <button class="ui-button ui-secondary ui-sm">Cancel</button>
+            <button class="ui-button ui-primary ui-sm">Save</button>
+          </div>
+        </div>
+
+        <!-- Elevated + Hoverable -->
+        <div class="ui-card ui-elevated ui-hoverable">
+          <div class="ui-header">
+            <span>Elevated + Hoverable</span>
+            <span class="ui-badge ui-primary">New</span>
+          </div>
+          <div class="ui-body">
+            <p>Hover over this card to see the shadow and lift effect.</p>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.5rem;">Composition: <code>class="ui-card ui-elevated ui-hoverable"</code></p>
+          </div>
+          <div class="ui-footer">
+            <button class="ui-button ui-ghost ui-sm">Details</button>
+          </div>
+        </div>
+
+        <!-- Outlined -->
+        <div class="ui-card ui-outlined">
+          <div class="ui-header">Outlined</div>
+          <div class="ui-body">
+            <p>A card with a stronger border and no shadow.</p>
+          </div>
+        </div>
+
+        <!-- Flat -->
+        <div class="ui-card ui-flat">
+          <div class="ui-header">Flat</div>
+          <div class="ui-body">
+            <p>No border, no shadow. Just a subtle background.</p>
+          </div>
+        </div>
+
+        <!-- Interactive -->
+        <div class="ui-card ui-interactive ui-elevated">
+          <div class="ui-header">
+            <span>Interactive</span>
+            <span class="ui-badge ui-success ui-dot">Live</span>
+          </div>
+          <div class="ui-body">
+            <p>Click me! This card is fully clickable with hover + active states.</p>
+          </div>
+        </div>
+
+        <!-- Compact -->
+        <div class="ui-card ui-compact ui-elevated">
+          <div class="ui-header">Compact</div>
+          <div class="ui-body">
+            <p>Reduced padding for dense UIs.</p>
+          </div>
+          <div class="ui-footer">
+            <button class="ui-button ui-primary ui-sm">Action</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="code-preview" style="margin-top: 1.5rem;">
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ui-card ui-elevated ui-hoverable"</span><span class="tag">&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ui-header"</span><span class="tag">&gt;</span>Title<span class="tag">&lt;/div&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ui-body"</span><span class="tag">&gt;</span>Content<span class="tag">&lt;/div&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ui-footer"</span><span class="tag">&gt;</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="val">"ui-button ui-primary"</span><span class="tag">&gt;</span>Save<span class="tag">&lt;/button&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;/div&gt;</span><br>
+        <span class="tag">&lt;/div&gt;</span>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- USE CASE COMPLEXE — Dashboard SaaS -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="demo-section">
+      <h2>Use Case Complexe — Dashboard SaaS</h2>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+
+        <section class="ui-card ui-elevated ui-hoverable">
+          <header class="ui-header ui-sticky">
+            <h3 style="margin:0;">Analytics</h3>
+            <button class="ui-button ui-ghost ui-sm">•••</button>
+          </header>
+          <div class="ui-body">
+            <p style="color: #64748b; font-size: 0.85rem;">Total users</p>
+            <strong style="font-size: 2rem;">12,458</strong>
+            <span class="ui-badge ui-success ui-dot" style="margin-left: 0.5rem;">+12%</span>
+          </div>
+          <footer class="ui-footer">
+            <button class="ui-button ui-secondary ui-sm">Export</button>
+            <button class="ui-button ui-primary ui-sm">View Details</button>
+          </footer>
+        </section>
+
+        <section class="ui-card ui-elevated ui-hoverable">
+          <header class="ui-header ui-sticky">
+            <h3 style="margin:0;">Revenue</h3>
+            <button class="ui-button ui-ghost ui-sm">•••</button>
+          </header>
+          <div class="ui-body">
+            <p style="color: #64748b; font-size: 0.85rem;">Monthly revenue</p>
+            <strong style="font-size: 2rem;">$48,290</strong>
+            <span class="ui-badge ui-danger ui-dot" style="margin-left: 0.5rem;">-3%</span>
+          </div>
+          <footer class="ui-footer">
+            <button class="ui-button ui-secondary ui-sm">Export</button>
+            <button class="ui-button ui-primary ui-sm">View Details</button>
+          </footer>
+        </section>
+
+        <section class="ui-card ui-elevated ui-hoverable">
+          <header class="ui-header ui-sticky">
+            <h3 style="margin:0;">Active Sessions</h3>
+            <button class="ui-button ui-ghost ui-sm">•••</button>
+          </header>
+          <div class="ui-body">
+            <p style="color: #64748b; font-size: 0.85rem;">Right now</p>
+            <strong style="font-size: 2rem;">1,024</strong>
+            <span class="ui-badge ui-warning ui-dot" style="margin-left: 0.5rem;">Peak</span>
+          </div>
+          <footer class="ui-footer">
+            <button class="ui-button ui-ghost ui-sm">Refresh</button>
+          </footer>
+        </section>
+
+      </div>
+
+      <div class="code-preview" style="margin-top: 1.5rem;">
+        <span class="tag">&lt;section</span> <span class="attr">class</span>=<span class="val">"ui-card ui-elevated ui-hoverable"</span><span class="tag">&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;header</span> <span class="attr">class</span>=<span class="val">"ui-header ui-sticky"</span><span class="tag">&gt;</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;h3&gt;</span>Analytics<span class="tag">&lt;/h3&gt;</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="val">"ui-button ui-ghost ui-sm"</span><span class="tag">&gt;</span>•••<span class="tag">&lt;/button&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;/header&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ui-body"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;footer</span> <span class="attr">class</span>=<span class="val">"ui-footer"</span><span class="tag">&gt;</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="val">"ui-button ui-primary ui-sm"</span><span class="tag">&gt;</span>View Details<span class="tag">&lt;/button&gt;</span><br>
+        &nbsp;&nbsp;<span class="tag">&lt;/footer&gt;</span><br>
+        <span class="tag">&lt;/section&gt;</span>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- DYNAMIC VARIABLES -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="demo-section">
+      <h2>Dynamic Variables (CSS Custom Properties)</h2>
+      <p style="color: #64748b; margin-bottom: 1rem;">Use <code>style="--ui-card-bg: #color"</code> to dynamically control styles without changing classes.</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+        <div class="ui-card ui-elevated" style="--ui-card-bg: #eff6ff; background: var(--ui-card-bg);">
+          <div class="ui-body">
+            <p><strong>Custom Background</strong></p>
+            <code style="font-size: 0.8rem; color: #3b82f6;">--ui-card-bg: #eff6ff</code>
+          </div>
+        </div>
+        <div class="ui-card ui-elevated" style="--ui-card-bg: #fef2f2; background: var(--ui-card-bg);">
+          <div class="ui-body">
+            <p><strong>Custom Background</strong></p>
+            <code style="font-size: 0.8rem; color: #ef4444;">--ui-card-bg: #fef2f2</code>
+          </div>
+        </div>
+        <div class="ui-card ui-elevated" style="--ui-card-bg: #f0fdf4; background: var(--ui-card-bg);">
+          <div class="ui-body">
+            <p><strong>Custom Background</strong></p>
+            <code style="font-size: 0.8rem; color: #22c55e;">--ui-card-bg: #f0fdf4</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; padding: 3rem 0; border-top: 1px solid #e2e8f0; margin-top: 2rem; color: #94a3b8;">
+      <p>TailUI v1.0.0 — CSS-first. Semantic. Composable.</p>
+      <p style="font-size: 0.85rem; margin-top: 0.25rem;">Built by Hosby</p>
+    </div>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const body = document.body;
+      if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+        body.style.backgroundColor = '';
+        body.style.color = '';
+      } else {
+        body.setAttribute('data-theme', 'dark');
+        body.style.backgroundColor = '#0f172a';
+        body.style.color = '#e2e8f0';
+      }
+    }
+  </script>
+
+</body>
+</html>
