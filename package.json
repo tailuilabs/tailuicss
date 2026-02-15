@@ -1,6 +1,6 @@
 {
   "name": "tailui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A semantic CSS-first layer on top of Tailwind CSS. Write class=\"ui-button ui-primary\" instead of 40 utility classes.",
   "main": "src/plugin/index.js",
   "types": "src/plugin/index.d.ts",
