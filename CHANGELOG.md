@@ -5,6 +5,31 @@ All notable changes to TailUI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] — 2025-06-20
+
+### Added
+
+- **`tailui migrate` command** — automatically convert Tailwind utility classes to semantic `.ui-*` classes
+  - **Tag-first detection**: HTML tag is the primary signal (`<button>` → `ui-button`, `<input>` → `ui-input`). No guessing.
+  - **Attribute resolution**: ARIA attributes disambiguate generic tags (`role="alert"` → `ui-alert`, `role="dialog"` → `ui-modal`)
+  - **Class-based fallback**: for `<div>`, `<span>`, etc. — requires high class confidence
+  - **Variant detection**: automatically detects color/style variants (`ui-primary`, `ui-danger`, `ui-elevated`, etc.)
+  - **Structural class preservation**: spacing, layout, sizing, and positioning classes are kept alongside `.ui-*` classes
+  - **Dynamic class skipping**: `cn()`, `clsx()`, `cva()`, `twMerge()`, template literal interpolations, and ternaries are safely skipped
+  - **Dry-run mode** (`--dry-run`): preview all changes without modifying files
+  - **Interactive mode** (`-i`): confirm each migration individually
+  - **Force mode** (`--force`): apply all migrations without confirmation
+  - **Confidence threshold** (`--threshold <0-100>`): control minimum match score (default: 60)
+  - **Backup & undo**: timestamped backups in `.tailui-backup/`, restore with `--undo`
+  - **Single file** (`-f <path>`) or **directory** (`--all <dir>`) migration
+- **Dev-only architecture**: the migrate module is lazy-loaded by the CLI and never imported by the Tailwind or PostCSS plugins — zero production bundle impact
+
+### Changed
+
+- CLI now has **7 commands** (added `migrate`)
+
+---
+
 ## [1.0.0] — 2026-02-11
 
 ### Added

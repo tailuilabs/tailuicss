@@ -49,18 +49,30 @@ TailUI requires **Tailwind CSS** and **PostCSS** as peer dependencies. Install w
 
 ```bash
 npm install @tailuicss/core tailwindcss postcss autoprefixer
+# or
+pnpm add @tailuicss/core tailwindcss postcss autoprefixer
+# or
+yarn add @tailuicss/core tailwindcss postcss autoprefixer
 ```
 
 **Tailwind CSS installed, but no PostCSS?** Add PostCSS:
 
 ```bash
 npm install @tailuicss/core postcss
+# or
+pnpm add @tailuicss/core postcss
+# or
+yarn add @tailuicss/core postcss
 ```
 
 **Tailwind CSS + PostCSS already installed?** Just add TailUI:
 
 ```bash
 npm install @tailuicss/core
+# or
+pnpm add @tailuicss/core
+# or
+yarn add @tailuicss/core
 ```
 
 ### 2. Configure
@@ -362,6 +374,56 @@ npx tailui generate modal      # → src/components/ui/Modal.tsx
 The AI reads your existing CSS styles and generates a **typed, accessible component** that uses your `.ui-*` classes. Supports React, Vue, Svelte, Angular, Astro, and more.
 
 > **Your API key is stored locally** in `ui.config.json`. Never commit it to git — add `ui.config.json` to `.gitignore` if it contains secrets.
+
+---
+
+## Migration
+
+Already have a project full of Tailwind utility classes? **Migrate them automatically.**
+
+```bash
+# Preview changes (dry-run)
+npx tailui migrate --all src/components --dry-run
+
+# Migrate a single file
+npx tailui migrate -f src/components/Button.tsx
+
+# Migrate all files in a directory
+npx tailui migrate --all src/components
+
+# Interactive mode — confirm each change
+npx tailui migrate --all src/components -i
+
+# Undo the last migration
+npx tailui migrate --undo
+```
+
+### How It Works
+
+1. **Tag-first detection** — the HTML tag determines the component. `<button>` → `ui-button`, `<input>` → `ui-input`. No guessing.
+2. **Attribute resolution** — ARIA attributes disambiguate generic tags (`role="alert"` → `ui-alert`)
+3. **Class-based fallback** — for `<div>`, `<span>`, etc., classes confirm the component with high confidence thresholds
+4. **Variant detection** — color and style variants are automatically detected (`ui-primary`, `ui-danger`, `ui-elevated`)
+5. **Structural preservation** — spacing, layout, sizing, and positioning classes are kept (`mt-4`, `w-full`, `flex`)
+
+### Safety
+
+- **Dynamic classes are skipped** — `cn()`, `clsx()`, `cva()`, `twMerge()`, template literals with interpolation, and ternary expressions are never touched
+- **Backup & undo** — every migration creates a timestamped backup in `.tailui-backup/`; restore with `--undo`
+- **Confidence threshold** — only migrations above the threshold are applied (default: 60, configurable with `--threshold`)
+- **Dev-only** — the migrate module is lazy-loaded by the CLI and never imported by the Tailwind or PostCSS plugins. Zero production bundle impact.
+
+### Options
+
+| Flag | Description |
+|---|---|
+| `-f <path>` | Migrate a single file |
+| `--all` | Migrate all supported files in target directory |
+| `--dry-run` | Preview changes without modifying files |
+| `-i, --interactive` | Confirm each migration individually |
+| `--force` | Apply all migrations without confirmation |
+| `--threshold <0-100>` | Minimum confidence score (default: 60) |
+| `--undo` | Restore files from the most recent backup |
 
 ---
 

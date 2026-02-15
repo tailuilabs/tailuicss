@@ -129,63 +129,150 @@ program
 
 // ─── ADD ───────────────────────────────────────────────────────
 program
-  .command('add <component> <token>')
-  .description('Add a new token (variant/slot/modifier) to a component')
-  .option('-d, --dir <path>', 'Override styles directory')
-  .option('-t, --type <type>', 'Token type: variant, slot, modifier', 'variant')
-  .action((component, token, options) => {
+  .command('add <component>')
+  .description('Add a TailUI component to your project (CSS + framework component)')
+  .option('--css-only', 'Only copy the CSS file, skip framework component generation')
+  .option('--overwrite', 'Overwrite existing files')
+  .action(async (component, options) => {
     if (!COMPONENT_NAME_RE.test(component)) {
       console.error(`  ❌ Invalid component name "${component}". Use lowercase letters, numbers, and hyphens.`);
       process.exit(1);
     }
-    if (!TOKEN_NAME_RE.test(token)) {
-      console.error(`  ❌ Invalid token name "${token}". Use lowercase letters, numbers, and hyphens.`);
+
+    const config = loadConfig();
+    if (!config) {
+      console.log('  ❌ No ui.config.json found. Run: npx tailui init');
       process.exit(1);
     }
 
-    const dir = getStylesDir(options.dir);
-    const filePath = path.join(dir, `ui.${component}.css`);
+    const { getTemplate, getAvailableComponents, hasTemplate } = require('../templates');
 
-    if (!fs.existsSync(filePath)) {
-      console.log(`  ❌ Component "${component}" not found. Run: tailui create ${component}`);
+    // Check if component exists in TailUI library
+    const availableComponents = getAvailableComponents();
+    if (!availableComponents.includes(component)) {
+      console.error(`  ❌ Component "${component}" not found in TailUI library.`);
+      console.error(`  Available components: ${availableComponents.join(', ')}`);
       process.exit(1);
     }
 
-    const VALID_TOKEN_TYPES = ['variant', 'slot', 'modifier'];
-    const type = options.type;
-    if (!VALID_TOKEN_TYPES.includes(type)) {
-      console.error(`  ❌ Invalid token type "${type}". Must be one of: ${VALID_TOKEN_TYPES.join(', ')}`);
+    const stylesDir = config.stylesDir || './ui/styles';
+    const componentsDir = config.componentsDir || './src/components/ui';
+    const stack = config.stack || 'react';
+
+    // Detect TypeScript
+    const isTypeScript = fs.existsSync(path.join(process.cwd(), 'tsconfig.json'));
+
+    console.log(`\n  📦 Adding ${component} component...\n`);
+
+    // ── Step 1: Copy CSS file ──
+    const cssSourcePath = path.join(__dirname, '../../ui/styles', `ui.${component}.css`);
+    const cssDestPath = path.join(stylesDir, `ui.${component}.css`);
+
+    if (!fs.existsSync(cssSourcePath)) {
+      console.error(`  ❌ CSS file not found: ${cssSourcePath}`);
       process.exit(1);
     }
 
-    let snippet = '';
-
-    switch (type) {
-      case 'slot':
-        snippet = `\n  .ui-${token} {\n    @apply ;\n  }\n`;
-        break;
-      case 'modifier':
-        snippet = `\n  .ui-${token} {\n    @apply ;\n  }\n`;
-        break;
-      case 'variant':
-      default:
-        snippet = `\n  .ui-${component}.ui-${token} {\n    @apply ;\n  }\n`;
-        break;
+    // Ensure styles directory exists
+    if (!fs.existsSync(stylesDir)) {
+      fs.mkdirSync(stylesDir, { recursive: true });
+      console.log(`  📁 Created: ${stylesDir}`);
     }
 
-    // Insert before the last closing brace
-    let content = fs.readFileSync(filePath, 'utf8');
-    const lastBrace = content.lastIndexOf('}');
-    if (lastBrace !== -1) {
-      content = content.substring(0, lastBrace) + snippet + content.substring(lastBrace);
+    // Check if CSS already exists
+    if (fs.existsSync(cssDestPath) && !options.overwrite) {
+      console.log(`  ⚠️  ${cssDestPath} already exists. Use --overwrite to replace.`);
+    } else {
+      fs.copyFileSync(cssSourcePath, cssDestPath);
+      console.log(`  ✅ Copied: ${cssDestPath}`);
+
+      // Update index.css
+      updateIndex(stylesDir, component);
     }
 
-    fs.writeFileSync(filePath, content);
-    console.log(`  ✅ Added ${type} "${token}" to ${component}`);
+    // ── Step 2: Generate framework component ──
+    if (!options.cssOnly) {
+      // Ensure components directory exists
+      if (!fs.existsSync(componentsDir)) {
+        fs.mkdirSync(componentsDir, { recursive: true });
+        console.log(`  📁 Created: ${componentsDir}`);
+      }
 
-    // Update config
-    addTokenToConfig(component, token);
+      const ext = getExtension(stack, isTypeScript);
+      const componentName = capitalize(component);
+
+      if (stack === 'angular') {
+        // Angular has separate .ts and .html files
+        const template = getTemplate(component, stack, isTypeScript);
+        if (template && template.ts && template.html) {
+          const tsPath = path.join(componentsDir, `${component}.component.ts`);
+          const htmlPath = path.join(componentsDir, `${component}.component.html`);
+
+          if (fs.existsSync(tsPath) && !options.overwrite) {
+            console.log(`  ⚠️  ${tsPath} already exists. Use --overwrite to replace.`);
+          } else {
+            fs.writeFileSync(tsPath, template.ts());
+            console.log(`  ✅ Generated: ${tsPath}`);
+          }
+
+          if (fs.existsSync(htmlPath) && !options.overwrite) {
+            console.log(`  ⚠️  ${htmlPath} already exists. Use --overwrite to replace.`);
+          } else {
+            fs.writeFileSync(htmlPath, template.html());
+            console.log(`  ✅ Generated: ${htmlPath}`);
+          }
+        } else {
+          console.log(`  ℹ️  No Angular template for ${component}. CSS only.`);
+        }
+      } else {
+        // React, Vue, Svelte
+        const template = getTemplate(component, stack, isTypeScript);
+        if (template) {
+          const fileName = `${componentName}.${ext}`;
+          const filePath = path.join(componentsDir, fileName);
+
+          if (fs.existsSync(filePath) && !options.overwrite) {
+            console.log(`  ⚠️  ${filePath} already exists. Use --overwrite to replace.`);
+          } else {
+            fs.writeFileSync(filePath, template);
+            console.log(`  ✅ Generated: ${filePath}`);
+          }
+        } else {
+          console.log(`  ℹ️  No ${stack} template for ${component}. CSS only.`);
+        }
+      }
+    }
+
+    // ── Summary ──
+    console.log(`\n  🎉 Done! Use the component:\n`);
+    if (stack === 'react' || stack === 'nextjs') {
+      console.log(`  import { ${capitalize(component)} } from "${componentsDir.replace('./', '@/')}/${capitalize(component)}";`);
+    } else if (stack === 'vue' || stack === 'nuxt') {
+      console.log(`  <${capitalize(component)} />`);
+    } else if (stack === 'svelte' || stack === 'sveltekit') {
+      console.log(`  import ${capitalize(component)} from "${componentsDir}/${capitalize(component)}.svelte";`);
+    } else if (stack === 'angular') {
+      console.log(`  <ui-${component}><\/ui-${component}>`);
+    } else {
+      console.log(`  <div class="ui-${component}">...</div>`);
+    }
+    console.log('');
   });
+
+function getExtension(stack, isTypeScript) {
+  const extensions = {
+    react: isTypeScript ? 'tsx' : 'jsx',
+    nextjs: isTypeScript ? 'tsx' : 'jsx',
+    vue: 'vue',
+    nuxt: 'vue',
+    svelte: 'svelte',
+    sveltekit: 'svelte',
+    angular: 'ts',
+    astro: 'astro',
+    html: 'html',
+  };
+  return extensions[stack] || (isTypeScript ? 'tsx' : 'jsx');
+}
 
 // ─── LIST ──────────────────────────────────────────────────────
 program
@@ -561,6 +648,71 @@ program
     }
   });
 
+// ─── MIGRATE ──────────────────────────────────────────────────
+program
+  .command('migrate [target]')
+  .description('Migrate Tailwind utility classes to TailUI .ui-* semantic classes')
+  .option('-f, --file <path>', 'Migrate a single file')
+  .option('--all', 'Migrate all supported files in the target directory')
+  .option('--dry-run', 'Preview changes without modifying files')
+  .option('-i, --interactive', 'Confirm each migration interactively')
+  .option('--force', 'Apply all migrations without confirmation')
+  .option('--threshold <number>', 'Minimum confidence score (0–100, default 60)', '60')
+  .option('--undo', 'Restore files from the most recent backup')
+  .action(async (target, options) => {
+    const { migrate } = require('../migrate');
+
+    // Handle --undo (no target needed)
+    if (options.undo) {
+      return migrate({ undo: true });
+    }
+
+    // Resolve target from -f or positional argument
+    const resolvedTarget = options.file || target;
+
+    if (!resolvedTarget) {
+      console.error('  ❌ Please specify a target file or directory.');
+      console.error('');
+      console.error('  Usage:');
+      console.error('    tailui migrate -f <file>           Migrate a single file');
+      console.error('    tailui migrate --all <directory>    Migrate all files in a directory');
+      console.error('    tailui migrate --undo               Restore from backup');
+      console.error('');
+      console.error('  Examples:');
+      console.error('    tailui migrate -f src/components/Button.tsx');
+      console.error('    tailui migrate --all src/components');
+      console.error('    tailui migrate --all src/components --dry-run');
+      console.error('    tailui migrate --all src/components -i');
+      console.error('');
+      process.exit(1);
+    }
+
+    const threshold = parseInt(options.threshold, 10);
+    if (isNaN(threshold) || threshold < 0 || threshold > 100) {
+      console.error('  ❌ Threshold must be a number between 0 and 100.');
+      process.exit(1);
+    }
+
+    // Load AI config if available
+    let aiConfig = null;
+    const config = loadConfig();
+    if (config && config.ai && config.ai.apiKey) {
+      aiConfig = config.ai;
+    }
+
+    await migrate({
+      target: resolvedTarget,
+      all: !!options.all,
+      dryRun: !!options.dryRun,
+      interactive: !!options.interactive,
+      force: !!options.force,
+      threshold,
+      undo: false,
+      ai: false,
+      aiConfig,
+    });
+  });
+
 // ─── AI HELPERS ─────────────────────────────────────────────────
 
 function buildPrompt(component, stack, cssContent, config = {}) {
@@ -767,20 +919,6 @@ function updateConfig(component, tokens) {
 
   saveConfig(config);
   console.log(`  📝 Updated: ${CONFIG_FILE}`);
-}
-
-function addTokenToConfig(component, token) {
-  const config = loadConfig();
-  if (!config) return;
-
-  if (!config.components) config.components = {};
-  if (!config.components[component]) config.components[component] = [];
-
-  if (!config.components[component].includes(token)) {
-    config.components[component].push(token);
-    saveConfig(config);
-    console.log(`  📝 Updated: ${CONFIG_FILE}`);
-  }
 }
 
 function updateIndex(dir, component) {

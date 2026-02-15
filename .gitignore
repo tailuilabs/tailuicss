@@ -3,3 +3,4 @@ demo/dist/
 .DS_Store
 *.tgz
 .npmrc
+.tailui-backup/
