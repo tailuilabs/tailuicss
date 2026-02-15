@@ -8,8 +8,8 @@
 
 Stop writing 40 utility classes per element. Write `ui-button ui-primary` instead.
 
-[![npm version](https://img.shields.io/npm/v/@tailuicss/core.svg?style=flat-square&color=0284c7)](https://www.npmjs.com/package/@tailuicss/core)
-[![license](https://img.shields.io/npm/l/@tailuicss/core.svg?style=flat-square&color=0284c7)](https://github.com/tailuicss/tailui/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/tailuicss.svg?style=flat-square&color=0284c7)](https://www.npmjs.com/package/tailuicss)
+[![license](https://img.shields.io/npm/l/tailuicss.svg?style=flat-square&color=0284c7)](https://github.com/tailuilabs/tailuicss/blob/main/LICENSE)
 [![tailwindcss](https://img.shields.io/badge/tailwindcss-%3E%3D3.4-0284c7?style=flat-square)](https://tailwindcss.com)
 [![zero runtime](https://img.shields.io/badge/JS_runtime-0kb-10b981?style=flat-square)](.)
 
@@ -40,18 +40,18 @@ Stop writing 40 utility classes per element. Write `ui-button ui-primary` instea
 ## Quick Start
 
 ```bash
-npm install @tailuicss/core
+npm install tailuicss
 ```
 
 ```js
 // tailwind.config.js
-plugins: [require('@tailuicss/core')()]
+plugins: [require('tailuicss')()]
 ```
 
 ```js
 // postcss.config.js
 plugins: {
-  '@tailuicss/core/postcss': {},
+  'tailuicss/postcss': {},
   tailwindcss: {},
 }
 ```
