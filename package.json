@@ -1,5 +1,5 @@
 {
-  "name": "tailui",
+  "name": "tailuicss",
   "version": "1.0.2",
   "description": "A semantic CSS-first layer on top of Tailwind CSS. Write class=\"ui-button ui-primary\" instead of 40 utility classes.",
   "main": "src/plugin/index.js",
@@ -73,11 +73,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tailuicss/tailui.git"
+    "url": "git+https://github.com/tailuilabs/tailuicss.git"
   },
   "homepage": "https://tailuicss.com",
   "bugs": {
-    "url": "https://github.com/tailuicss/tailui/issues"
+    "url": "https://github.com/tailuilabs/tailuicss/issues"
   },
   "publishConfig": {
     "access": "public"
@@ -88,7 +88,7 @@
   },
   "funding": {
     "type": "github",
-    "url": "https://github.com/sponsors/tailuicss"
+    "url": "https://github.com/sponsors/tailuilabs"
   },
   "dependencies": {
     "commander": "^12.1.0"
