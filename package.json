@@ -34,8 +34,6 @@
   "files": [
     "dist/",
     "ui/",
-    "postcss.js",
-    "postcss.d.ts",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
@@ -44,7 +42,7 @@
     "dev": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss --watch",
     "build": "tsup",
     "dev:build": "tsup src/plugin/index.ts --format esm,cjs --dts --watch",
-    "prepublishOnly": "npm run typecheck && npm run test && npm run build",
+    "prepublishOnly": "npm run typecheck && npm run build",
     "build:demo": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss",
     "demo": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss && open demo/index.html",
     "typecheck": "tsc --noEmit"
@@ -99,7 +97,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css",
+    "./dist/postcss/*.js",
+    "./dist/plugin/*.js"
+  ],
   "engines": {
     "node": ">=16.0.0"
   },

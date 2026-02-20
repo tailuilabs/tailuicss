@@ -1,5 +1,3 @@
-import "../chunk-SBOSXPYJ.js";
-
 // src/templates/index.ts
 var COMPONENTS = {
   button: {

@@ -1,19 +1,51 @@
 #!/usr/bin/env node
-import {
-  CONFIG_FILE,
-  DEFAULT_DIR,
-  resolveConfig
-} from "../chunk-S7NR4S6U.js";
-import {
-  __dirname
-} from "../chunk-SBOSXPYJ.js";
+
+// node_modules/tsup/assets/esm_shims.js
+import path from "path";
+import { fileURLToPath } from "url";
+var getFilename = () => fileURLToPath(import.meta.url);
+var getDirname = () => path.dirname(getFilename());
+var __dirname = /* @__PURE__ */ getDirname();
 
 // src/cli/index.ts
 import { program } from "commander";
-import fs from "fs";
-import path from "path";
+import fs2 from "fs";
+import path3 from "path";
 import readline from "readline";
 import https from "https";
+
+// src/config.ts
+import fs from "fs";
+import path2 from "path";
+var CONFIG_FILE = "ui.config.json";
+var DEFAULT_DIR = "ui";
+function resolveConfig(options = {}) {
+  const configPath = path2.join(process.cwd(), CONFIG_FILE);
+  let config = null;
+  if (fs.existsSync(configPath)) {
+    try {
+      config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    } catch (e) {
+      console.warn(`[TailUI] \u26A0\uFE0F  Failed to parse ${CONFIG_FILE}: ${e.message}`);
+    }
+  }
+  let stylesDir;
+  if (options.path) {
+    stylesDir = options.path;
+  } else if (config?.stylesDir) {
+    stylesDir = config.stylesDir;
+  } else {
+    stylesDir = `./${DEFAULT_DIR}/styles`;
+  }
+  const resolved = path2.resolve(process.cwd(), stylesDir);
+  if (!resolved.startsWith(process.cwd())) {
+    console.warn(`[TailUI] \u26A0\uFE0F  stylesDir "${stylesDir}" resolves outside the project. Using default.`);
+    stylesDir = `./${DEFAULT_DIR}/styles`;
+  }
+  return { stylesDir, configPath, config };
+}
+
+// src/cli/index.ts
 import { createRequire } from "module";
 var require2 = createRequire(import.meta.url);
 var pkg = require2("../../package.json");
@@ -50,10 +82,10 @@ function getStylesDir(optionDir) {
   return stylesDir;
 }
 function loadConfig() {
-  const configPath = path.join(process.cwd(), CONFIG_FILE);
-  if (!fs.existsSync(configPath)) return null;
+  const configPath = path3.join(process.cwd(), CONFIG_FILE);
+  if (!fs2.existsSync(configPath)) return null;
   try {
-    return JSON.parse(fs.readFileSync(configPath, "utf8"));
+    return JSON.parse(fs2.readFileSync(configPath, "utf8"));
   } catch (e) {
     console.error(`  \u274C Failed to parse ${CONFIG_FILE}: ${e.message}`);
     console.error(`  Fix the JSON syntax or delete the file and run: npx tailui init`);
@@ -61,9 +93,9 @@ function loadConfig() {
   }
 }
 function saveConfig(config) {
-  const configPath = path.join(process.cwd(), CONFIG_FILE);
+  const configPath = path3.join(process.cwd(), CONFIG_FILE);
   try {
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n");
+    fs2.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n");
   } catch (e) {
     console.error(`  \u274C Failed to write ${CONFIG_FILE}: ${e.message}`);
     process.exit(1);
@@ -75,12 +107,12 @@ program.command("create <component>").description("Create a new UI component sty
     process.exit(1);
   }
   const dir = getStylesDir(options.dir);
-  const filePath = path.join(dir, `ui.${component}.css`);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  const filePath = path3.join(dir, `ui.${component}.css`);
+  if (!fs2.existsSync(dir)) {
+    fs2.mkdirSync(dir, { recursive: true });
     console.log(`  \u{1F4C1} Created directory: ${dir}`);
   }
-  if (fs.existsSync(filePath)) {
+  if (fs2.existsSync(filePath)) {
     console.log(`  \u26A0\uFE0F  Component "${component}" already exists at ${filePath}`);
     process.exit(0);
   }
@@ -91,7 +123,7 @@ program.command("create <component>").description("Create a new UI component sty
     process.exit(1);
   }
   const template = generateTemplate(component, variants);
-  fs.writeFileSync(filePath, template);
+  fs2.writeFileSync(filePath, template);
   console.log(`  \u2705 Created: ${filePath}`);
   updateConfig(component, variants);
   updateIndex(dir, component);
@@ -123,30 +155,30 @@ program.command("add <component>").description("Add a TailUI component to your p
   const stylesDir = config.stylesDir || "./ui/styles";
   const componentsDir = config.componentsDir || "./src/components/ui";
   const stack = config.stack || "react";
-  const isTypeScript = fs.existsSync(path.join(process.cwd(), "tsconfig.json"));
+  const isTypeScript = fs2.existsSync(path3.join(process.cwd(), "tsconfig.json"));
   console.log(`
   \u{1F4E6} Adding ${component} component...
 `);
-  const cssSourcePath = path.join(__dirname, "../../ui/styles", `ui.${component}.css`);
-  const cssDestPath = path.join(stylesDir, `ui.${component}.css`);
-  if (!fs.existsSync(cssSourcePath)) {
+  const cssSourcePath = path3.join(__dirname, "../../ui/styles", `ui.${component}.css`);
+  const cssDestPath = path3.join(stylesDir, `ui.${component}.css`);
+  if (!fs2.existsSync(cssSourcePath)) {
     console.error(`  \u274C CSS file not found: ${cssSourcePath}`);
     process.exit(1);
   }
-  if (!fs.existsSync(stylesDir)) {
-    fs.mkdirSync(stylesDir, { recursive: true });
+  if (!fs2.existsSync(stylesDir)) {
+    fs2.mkdirSync(stylesDir, { recursive: true });
     console.log(`  \u{1F4C1} Created: ${stylesDir}`);
   }
-  if (fs.existsSync(cssDestPath) && !options.overwrite) {
+  if (fs2.existsSync(cssDestPath) && !options.overwrite) {
     console.log(`  \u26A0\uFE0F  ${cssDestPath} already exists. Use --overwrite to replace.`);
   } else {
-    fs.copyFileSync(cssSourcePath, cssDestPath);
+    fs2.copyFileSync(cssSourcePath, cssDestPath);
     console.log(`  \u2705 Copied: ${cssDestPath}`);
     updateIndex(stylesDir, component);
   }
   if (!options.cssOnly) {
-    if (!fs.existsSync(componentsDir)) {
-      fs.mkdirSync(componentsDir, { recursive: true });
+    if (!fs2.existsSync(componentsDir)) {
+      fs2.mkdirSync(componentsDir, { recursive: true });
       console.log(`  \u{1F4C1} Created: ${componentsDir}`);
     }
     const ext = getExtension(stack, isTypeScript);
@@ -154,18 +186,18 @@ program.command("add <component>").description("Add a TailUI component to your p
     if (stack === "angular") {
       const template = getTemplate(component, stack, isTypeScript);
       if (template && "ts" in template && "html" in template) {
-        const tsPath = path.join(componentsDir, `${component}.component.ts`);
-        const htmlPath = path.join(componentsDir, `${component}.component.html`);
-        if (fs.existsSync(tsPath) && !options.overwrite) {
+        const tsPath = path3.join(componentsDir, `${component}.component.ts`);
+        const htmlPath = path3.join(componentsDir, `${component}.component.html`);
+        if (fs2.existsSync(tsPath) && !options.overwrite) {
           console.log(`  \u26A0\uFE0F  ${tsPath} already exists. Use --overwrite to replace.`);
         } else {
-          fs.writeFileSync(tsPath, template.ts());
+          fs2.writeFileSync(tsPath, template.ts());
           console.log(`  \u2705 Generated: ${tsPath}`);
         }
-        if (fs.existsSync(htmlPath) && !options.overwrite) {
+        if (fs2.existsSync(htmlPath) && !options.overwrite) {
           console.log(`  \u26A0\uFE0F  ${htmlPath} already exists. Use --overwrite to replace.`);
         } else {
-          fs.writeFileSync(htmlPath, template.html());
+          fs2.writeFileSync(htmlPath, template.html());
           console.log(`  \u2705 Generated: ${htmlPath}`);
         }
       } else {
@@ -175,11 +207,11 @@ program.command("add <component>").description("Add a TailUI component to your p
       const template = getTemplate(component, stack, isTypeScript);
       if (template) {
         const fileName = `${componentName}.${ext}`;
-        const filePath = path.join(componentsDir, fileName);
-        if (fs.existsSync(filePath) && !options.overwrite) {
+        const filePath = path3.join(componentsDir, fileName);
+        if (fs2.existsSync(filePath) && !options.overwrite) {
           console.log(`  \u26A0\uFE0F  ${filePath} already exists. Use --overwrite to replace.`);
         } else {
-          fs.writeFileSync(filePath, template);
+          fs2.writeFileSync(filePath, template);
           console.log(`  \u2705 Generated: ${filePath}`);
         }
       } else {
@@ -243,8 +275,8 @@ program.command("list").description("List all UI components and their tokens").a
   }
 });
 program.command("init").description("Initialize TailUI in the current project").option("-d, --dir <name>", "Directory name (skip prompt)").option("-s, --stack <stack>", "Framework stack (skip prompt)").action(async (options) => {
-  const configPath = path.join(process.cwd(), CONFIG_FILE);
-  if (fs.existsSync(configPath)) {
+  const configPath = path3.join(process.cwd(), CONFIG_FILE);
+  if (fs2.existsSync(configPath)) {
     const existing = loadConfig();
     if (existing) {
       console.log(`
@@ -288,7 +320,7 @@ program.command("init").description("Initialize TailUI in the current project").
   }
   dirName = dirName.replace(/[^a-zA-Z0-9_\-./]/g, "").trim() || DEFAULT_DIR;
   const stylesDir = `./${dirName}/styles`;
-  const resolvedStylesDir = path.resolve(process.cwd(), stylesDir);
+  const resolvedStylesDir = path3.resolve(process.cwd(), stylesDir);
   if (!resolvedStylesDir.startsWith(process.cwd())) {
     console.error(`  \u274C Styles directory must be within the project.`);
     process.exit(1);
@@ -301,7 +333,7 @@ program.command("init").description("Initialize TailUI in the current project").
     defaultComponentsDir
   );
   componentsDir = componentsDir.replace(/[^a-zA-Z0-9_\-./]/g, "").trim() || defaultComponentsDir;
-  const resolvedComponentsDir = path.resolve(process.cwd(), componentsDir);
+  const resolvedComponentsDir = path3.resolve(process.cwd(), componentsDir);
   if (!resolvedComponentsDir.startsWith(process.cwd())) {
     console.error(`  \u274C Components directory must be within the project.`);
     process.exit(1);
@@ -326,7 +358,7 @@ program.command("init").description("Initialize TailUI in the current project").
       console.log("  \u2192 AI: skipped (no key provided)\n");
     }
   }
-  if (fs.existsSync(dirName) && fs.readdirSync(dirName).length > 0) {
+  if (fs2.existsSync(dirName) && fs2.readdirSync(dirName).length > 0) {
     const overwrite = await askQuestion(
       `  \u26A0\uFE0F  Directory "${dirName}" already exists. Use it anyway? (y/N)`,
       "n"
@@ -336,17 +368,17 @@ program.command("init").description("Initialize TailUI in the current project").
       return;
     }
   }
-  if (!fs.existsSync(stylesDir)) {
-    fs.mkdirSync(stylesDir, { recursive: true });
+  if (!fs2.existsSync(stylesDir)) {
+    fs2.mkdirSync(stylesDir, { recursive: true });
     console.log(`  \u{1F4C1} Created: ${stylesDir}`);
   }
-  if (!fs.existsSync(componentsDir)) {
-    fs.mkdirSync(componentsDir, { recursive: true });
+  if (!fs2.existsSync(componentsDir)) {
+    fs2.mkdirSync(componentsDir, { recursive: true });
     console.log(`  \u{1F4C1} Created: ${componentsDir}`);
   }
-  const indexPath = path.join(stylesDir, "index.css");
-  if (!fs.existsSync(indexPath)) {
-    fs.writeFileSync(indexPath, `/* TailUI \u2014 Component Styles Entry Point */
+  const indexPath = path3.join(stylesDir, "index.css");
+  if (!fs2.existsSync(indexPath)) {
+    fs2.writeFileSync(indexPath, `/* TailUI \u2014 Component Styles Entry Point */
 `);
     console.log(`  \u{1F4C4} Created: ${indexPath}`);
   }
@@ -360,21 +392,21 @@ program.command("init").description("Initialize TailUI in the current project").
     components: {},
     variables: {}
   };
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+  fs2.writeFileSync(configPath, JSON.stringify(config, null, 2));
   console.log(`  \u{1F4C4} Created: ${CONFIG_FILE}`);
   if (ai) {
-    const gitignorePath = path.join(process.cwd(), ".gitignore");
-    if (fs.existsSync(gitignorePath)) {
-      const gitignoreContent = fs.readFileSync(gitignorePath, "utf8");
+    const gitignorePath = path3.join(process.cwd(), ".gitignore");
+    if (fs2.existsSync(gitignorePath)) {
+      const gitignoreContent = fs2.readFileSync(gitignorePath, "utf8");
       if (!gitignoreContent.includes(CONFIG_FILE)) {
-        fs.appendFileSync(gitignorePath, `
+        fs2.appendFileSync(gitignorePath, `
 # TailUI config (contains API key)
 ${CONFIG_FILE}
 `);
         console.log(`  \u{1F512} Added ${CONFIG_FILE} to .gitignore (API key protection)`);
       }
     } else {
-      fs.writeFileSync(gitignorePath, `# TailUI config (contains API key)
+      fs2.writeFileSync(gitignorePath, `# TailUI config (contains API key)
 ${CONFIG_FILE}
 `);
       console.log(`  \u{1F512} Created .gitignore with ${CONFIG_FILE} (API key protection)`);
@@ -424,10 +456,10 @@ program.command("generate <component>").description("Generate a framework compon
   const componentsDir = config.componentsDir || "./src/components/ui";
   const stylesDir = config.stylesDir || "./ui/styles";
   const ext = STACK_EXTENSIONS[stack] || "tsx";
-  const cssPath = path.join(stylesDir, `ui.${component}.css`);
+  const cssPath = path3.join(stylesDir, `ui.${component}.css`);
   let cssContent = "";
-  if (fs.existsSync(cssPath)) {
-    cssContent = fs.readFileSync(cssPath, "utf8");
+  if (fs2.existsSync(cssPath)) {
+    cssContent = fs2.readFileSync(cssPath, "utf8");
   }
   console.log(`
   \u{1F916} Generating ${component} component for ${stack}...`);
@@ -436,12 +468,12 @@ program.command("generate <component>").description("Generate a framework compon
   const prompt = buildPrompt(component, stack, cssContent, config);
   try {
     const code = await callAI(provider, apiKey, prompt);
-    if (!fs.existsSync(componentsDir)) {
-      fs.mkdirSync(componentsDir, { recursive: true });
+    if (!fs2.existsSync(componentsDir)) {
+      fs2.mkdirSync(componentsDir, { recursive: true });
     }
     const fileName = `${capitalize(component)}.${ext}`;
-    const filePath = path.join(componentsDir, fileName);
-    if (fs.existsSync(filePath)) {
+    const filePath = path3.join(componentsDir, fileName);
+    if (fs2.existsSync(filePath)) {
       const overwrite = await askQuestion(
         `  \u26A0\uFE0F  ${fileName} already exists. Overwrite? (y/N)`,
         "n"
@@ -451,7 +483,7 @@ program.command("generate <component>").description("Generate a framework compon
         return;
       }
     }
-    fs.writeFileSync(filePath, code);
+    fs2.writeFileSync(filePath, code);
     console.log(`  \u2705 Generated: ${filePath}`);
     console.log(`
   The component uses TailUI .ui-* classes from your styles.`);
@@ -494,11 +526,11 @@ program.command("config").description("View or update TailUI configuration").opt
     config.ai.apiKey = options.setKey;
     changed = true;
     console.log(`  \u2705 AI API key updated`);
-    const gitignorePath = path.join(process.cwd(), ".gitignore");
-    if (fs.existsSync(gitignorePath)) {
-      const gitignoreContent = fs.readFileSync(gitignorePath, "utf8");
+    const gitignorePath = path3.join(process.cwd(), ".gitignore");
+    if (fs2.existsSync(gitignorePath)) {
+      const gitignoreContent = fs2.readFileSync(gitignorePath, "utf8");
       if (!gitignoreContent.includes(CONFIG_FILE)) {
-        fs.appendFileSync(gitignorePath, `
+        fs2.appendFileSync(gitignorePath, `
 # TailUI config (contains API key)
 ${CONFIG_FILE}
 `);
@@ -752,12 +784,12 @@ function updateConfig(component, tokens) {
   console.log(`  \u{1F4DD} Updated: ${CONFIG_FILE}`);
 }
 function updateIndex(dir, component) {
-  const indexPath = path.join(dir, "index.css");
+  const indexPath = path3.join(dir, "index.css");
   const importLine = `@import "./ui.${component}.css";`;
-  if (fs.existsSync(indexPath)) {
-    const content = fs.readFileSync(indexPath, "utf8");
+  if (fs2.existsSync(indexPath)) {
+    const content = fs2.readFileSync(indexPath, "utf8");
     if (!content.includes(importLine)) {
-      fs.appendFileSync(indexPath, `${importLine}
+      fs2.appendFileSync(indexPath, `${importLine}
 `);
       console.log(`  \u{1F4DD} Updated: ${indexPath}`);
     }

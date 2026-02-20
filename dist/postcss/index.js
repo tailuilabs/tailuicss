@@ -1,24 +1,52 @@
-import {
-  resolveConfig
-} from "../chunk-S7NR4S6U.js";
-import "../chunk-SBOSXPYJ.js";
-
 // src/postcss/index.ts
+import fs2 from "fs";
+import path2 from "path";
+import postcss from "postcss";
+
+// src/config.ts
 import fs from "fs";
 import path from "path";
-import postcss from "postcss";
+var CONFIG_FILE = "ui.config.json";
+var DEFAULT_DIR = "ui";
+function resolveConfig(options = {}) {
+  const configPath = path.join(process.cwd(), CONFIG_FILE);
+  let config = null;
+  if (fs.existsSync(configPath)) {
+    try {
+      config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    } catch (e) {
+      console.warn(`[TailUI] \u26A0\uFE0F  Failed to parse ${CONFIG_FILE}: ${e.message}`);
+    }
+  }
+  let stylesDir;
+  if (options.path) {
+    stylesDir = options.path;
+  } else if (config?.stylesDir) {
+    stylesDir = config.stylesDir;
+  } else {
+    stylesDir = `./${DEFAULT_DIR}/styles`;
+  }
+  const resolved = path.resolve(process.cwd(), stylesDir);
+  if (!resolved.startsWith(process.cwd())) {
+    console.warn(`[TailUI] \u26A0\uFE0F  stylesDir "${stylesDir}" resolves outside the project. Using default.`);
+    stylesDir = `./${DEFAULT_DIR}/styles`;
+  }
+  return { stylesDir, configPath, config };
+}
+
+// src/postcss/index.ts
 var plugin = (options = {}) => {
   const { stylesDir } = resolveConfig(options);
   return {
     postcssPlugin: "tailui",
     Once(root) {
-      const fullPath = path.resolve(process.cwd(), stylesDir);
-      if (!fs.existsSync(fullPath)) {
+      const fullPath = path2.resolve(process.cwd(), stylesDir);
+      if (!fs2.existsSync(fullPath)) {
         return;
       }
-      const files = fs.readdirSync(fullPath).filter((f) => f.startsWith("ui.") && f.endsWith(".css")).sort();
+      const files = fs2.readdirSync(fullPath).filter((f) => f.startsWith("ui.") && f.endsWith(".css")).sort();
       if (files.length === 0) return;
-      let allCSS = files.map((file) => fs.readFileSync(path.join(fullPath, file), "utf8")).join("\n");
+      let allCSS = files.map((file) => fs2.readFileSync(path2.join(fullPath, file), "utf8")).join("\n");
       allCSS = processStyleBlocks(allCSS);
       const parsed = postcss.parse(allCSS);
       let componentsRule = null;

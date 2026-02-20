@@ -9,9 +9,14 @@ export default defineConfig({
   ],
   format: ['cjs', 'esm'],
   dts: true,
-  splitting: true,
+  splitting: false,
   sourcemap: true,
   clean: true,
   minify: false,
   shims: true,
+  outExtension({ format }) {
+    return {
+      js: format === 'cjs' ? '.cjs' : '.js',
+    };
+  },
 });
