@@ -25,6 +25,7 @@ export default defineConfig([
   {
     entry: {
       'cli/index': 'src/cli/index.ts', 
+      'migrate/index': 'src/migrate/index.ts',
     },
     format: ['esm'],
     dts: false,
@@ -32,9 +33,7 @@ export default defineConfig([
     sourcemap: true,
     minify: false,
     shims: false,
-    banner: {
-      js: '#!/usr/bin/env node',
-    },
+    banner: {},
     outExtension() {
       return { js: '.js' };
     },

@@ -41,6 +41,7 @@
   "scripts": {
     "dev": "npm run build && npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss postcss.config.cjs --watch",
     "build": "tsup",
+    "postbuild": "node -e \"const fs=require('fs'); const f='dist/cli/index.js'; const c=fs.readFileSync(f,'utf8'); if(!c.startsWith('#!/')) fs.writeFileSync(f,'#!/usr/bin/env node\\n'+c);\" && chmod +x dist/cli/index.js",
     "dev:build": "tsup src/plugin/index.ts --format esm,cjs --dts --watch",
     "prepublishOnly": "npm run typecheck && npm run build",
     "build:demo": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss",

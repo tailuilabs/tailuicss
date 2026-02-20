@@ -5,8 +5,15 @@ import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
 import https from 'https';
+import { fileURLToPath } from 'url';
 import { resolveConfig, CONFIG_FILE, DEFAULT_DIR } from '../config';
+import { getTemplate, getAvailableComponents } from '../templates/index';
+import { migrate } from '../migrate/index';
+
 import { createRequire } from 'module';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const require = createRequire(import.meta.url);
 const pkg = require('../../package.json') as { version: string };
@@ -134,7 +141,7 @@ program
 
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
-      console.log(`  📁 Created directory: ${dir}`);
+      console.log(`  - Created directory: ${dir}`);
     }
 
     if (fs.existsSync(filePath)) {
@@ -154,7 +161,7 @@ program
 
     const template = generateTemplate(component, variants);
     fs.writeFileSync(filePath, template);
-    console.log(` ☑️ Created: ${filePath}`);
+    console.log(` - Created: ${filePath}`);
 
     updateConfig(component, variants);
     updateIndex(dir, component);
@@ -185,12 +192,6 @@ program
       process.exit(1);
     }
 
-    const { getTemplate, getAvailableComponents } = require('../templates') as {
-      getTemplate: (component: string, stack: string, isTypeScript: boolean) => string | AngularTemplate | null;
-      getAvailableComponents: () => string[];
-      hasTemplate: (component: string) => boolean;
-    };
-
     const availableComponents = getAvailableComponents();
     if (!availableComponents.includes(component)) {
       console.error(`  ❌ Component "${component}" not found in TailUI library.`);
@@ -201,7 +202,6 @@ program
     const stylesDir = config.stylesDir || './ui/styles';
     const componentsDir = config.componentsDir || './src/components/ui';
     const stack = config.stack || 'react';
-
     const isTypeScript = fs.existsSync(path.join(process.cwd(), 'tsconfig.json'));
 
     console.log(`\n  📦 Adding ${component} component...\n`);
@@ -217,14 +217,14 @@ program
 
     if (!fs.existsSync(stylesDir)) {
       fs.mkdirSync(stylesDir, { recursive: true });
-      console.log(`  📁 Created: ${stylesDir}`);
+      console.log(`  - Created: ${stylesDir}`);
     }
 
     if (fs.existsSync(cssDestPath) && !options.overwrite) {
       console.log(`  ⚠️  ${cssDestPath} already exists. Use --overwrite to replace.`);
     } else {
       fs.copyFileSync(cssSourcePath, cssDestPath);
-      console.log(`  ☑️ Copied: ${cssDestPath}`);
+      console.log(`  - Copied: ${cssDestPath}`);
       updateIndex(stylesDir, component);
     }
 
@@ -232,7 +232,7 @@ program
     if (!options.cssOnly) {
       if (!fs.existsSync(componentsDir)) {
         fs.mkdirSync(componentsDir, { recursive: true });
-        console.log(`  📁 Created: ${componentsDir}`);
+        console.log(`  - Created: ${componentsDir}`);
       }
 
       const ext = getExtension(stack, isTypeScript);
@@ -244,18 +244,18 @@ program
           const tsPath = path.join(componentsDir, `${component}.component.ts`);
           const htmlPath = path.join(componentsDir, `${component}.component.html`);
 
-          if (fs.existsSync(tsPath) && !options.overwrite) {
-            console.log(`  ⚠️  ${tsPath} already exists. Use --overwrite to replace.`);
-          } else {
+          if (!fs.existsSync(tsPath) || options.overwrite) {
             fs.writeFileSync(tsPath, template.ts());
-            console.log(` ☑️ Generated: ${tsPath}`);
+            console.log(`  - Generated: ${tsPath}`);
+          } else {
+            console.log(`  ⚠️  ${tsPath} already exists. Use --overwrite to replace.`);
           }
 
-          if (fs.existsSync(htmlPath) && !options.overwrite) {
-            console.log(`  ⚠️  ${htmlPath} already exists. Use --overwrite to replace.`);
-          } else {
+          if (!fs.existsSync(htmlPath) || options.overwrite) {
             fs.writeFileSync(htmlPath, template.html());
-            console.log(`☑️ Generated: ${htmlPath}`);
+            console.log(`  - Generated: ${htmlPath}`);
+          } else {
+            console.log(`  ⚠️  ${htmlPath} already exists. Use --overwrite to replace.`);
           }
         } else {
           console.log(`  ℹ️  No Angular template for ${component}. CSS only.`);
@@ -263,14 +263,12 @@ program
       } else {
         const template = getTemplate(component, stack, isTypeScript) as string | null;
         if (template) {
-          const fileName = `${componentName}.${ext}`;
-          const filePath = path.join(componentsDir, fileName);
-
-          if (fs.existsSync(filePath) && !options.overwrite) {
-            console.log(`  ⚠️  ${filePath} already exists. Use --overwrite to replace.`);
-          } else {
+          const filePath = path.join(componentsDir, `${componentName}.${ext}`);
+          if (!fs.existsSync(filePath) || options.overwrite) {
             fs.writeFileSync(filePath, template);
-            console.log(` ☑️  Generated: ${filePath}`);
+            console.log(`  - Generated: ${filePath}`);
+          } else {
+            console.log(`  ⚠️  ${filePath} already exists. Use --overwrite to replace.`);
           }
         } else {
           console.log(`  ℹ️  No ${stack} template for ${component}. CSS only.`);
@@ -278,16 +276,16 @@ program
       }
     }
 
-    // ── Summary ──
-    console.log(`\n  🎉 Done! Use the component:\n`);
+    // console.log(`\n  🎉 Done! Use the component:\n`);
+    console.log(`\n  🎉 Done! `);
     if (stack === 'react' || stack === 'nextjs') {
-      console.log(`  import { ${capitalize(component)} } from "${componentsDir.replace('./', '@/')}/${capitalize(component)}";`);
+      // console.log(`  import { ${capitalize(component)} } from "${componentsDir.replace('./', '@/')}/${capitalize(component)}";`);
     } else if (stack === 'vue' || stack === 'nuxt') {
-      console.log(`  <${capitalize(component)} />`);
+      // console.log(`  <${capitalize(component)} />`);
     } else if (stack === 'svelte' || stack === 'sveltekit') {
-      console.log(`  import ${capitalize(component)} from "${componentsDir}/${capitalize(component)}.svelte";`);
+      // console.log(`  import ${capitalize(component)} from "${componentsDir}/${capitalize(component)}.svelte";`);
     } else if (stack === 'angular') {
-      console.log(`  <ui-${component}></ui-${component}>`);
+      // console.log(`  <ui-${component}></ui-${component}>`);
     } else {
       console.log(`  <div class="ui-${component}">...</div>`);
     }
@@ -440,7 +438,7 @@ program
 
       if (apiKey) {
         ai = { provider, apiKey };
-        console.log(`  → AI: ${provider} ☑️\n`);
+        console.log(`  → AI: ${provider} \n`);
       } else {
         console.log('  → AI: skipped (no key provided)\n');
       }
@@ -461,23 +459,23 @@ program
     // ── Create directories ──
     if (!fs.existsSync(stylesDir)) {
       fs.mkdirSync(stylesDir, { recursive: true });
-      console.log(`  📁 Created: ${stylesDir}`);
+      console.log(`  - Created: ${stylesDir}`);
     }
 
     if (!fs.existsSync(componentsDir)) {
       fs.mkdirSync(componentsDir, { recursive: true });
-      console.log(`  📁 Created: ${componentsDir}`);
+      console.log(`  - Created: ${componentsDir}`);
     }
 
     const indexPath = path.join(stylesDir, 'index.css');
     if (!fs.existsSync(indexPath)) {
       fs.writeFileSync(indexPath, `/* TailUI — Component Styles Entry Point */\n`);
-      console.log(`  📄 Created: ${indexPath}`);
+      console.log(`  - Created: ${indexPath}`);
     }
 
     // ── Create config ──
     const config: TailUIConfig = {
-      version: '1.0.0',
+      version: '2.3.0',
       stack: stack as Stack,
       directory: dirName,
       stylesDir,
@@ -487,7 +485,7 @@ program
       variables: {},
     };
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-    console.log(`  📄 Created: ${CONFIG_FILE}`);
+    console.log(`  - Created: ${CONFIG_FILE}`);
 
     if (ai) {
       const gitignorePath = path.join(process.cwd(), '.gitignore');
@@ -591,7 +589,7 @@ program
       }
 
       fs.writeFileSync(filePath, code);
-      console.log(` ☑️  Generated: ${filePath}`);
+      console.log(` -  Generated: ${filePath}`);
       console.log(`\n  The component uses TailUI .ui-* classes from your styles.`);
       console.log(`  Import it in your project and start using it!\n`);
     } catch (err) {
@@ -625,7 +623,7 @@ program
       }
       config.stack = options.setStack as Stack;
       changed = true;
-      console.log(`  ☑️  Stack set to: ${options.setStack}`);
+      console.log(`  -  Stack set to: ${options.setStack}`);
     }
 
     if (options.setAi) {
@@ -636,14 +634,14 @@ program
       if (!config.ai) config.ai = { provider: options.setAi as AIProvider, apiKey: '' };
       config.ai.provider = options.setAi as AIProvider;
       changed = true;
-      console.log(`  ☑️  AI provider set to: ${options.setAi}`);
+      console.log(`  -  AI provider set to: ${options.setAi}`);
     }
 
     if (options.setKey) {
       if (!config.ai) config.ai = { provider: 'openai', apiKey: '' };
       config.ai.apiKey = options.setKey;
       changed = true;
-      console.log(`  ☑️  AI API key updated`);
+      console.log(`  -  AI API key updated`);
 
       const gitignorePath = path.join(process.cwd(), '.gitignore');
       if (fs.existsSync(gitignorePath)) {
@@ -657,7 +655,7 @@ program
 
     if (changed) {
       saveConfig(config);
-      console.log(`  📝 Saved: ${CONFIG_FILE}\n`);
+      console.log(`  - Saved: ${CONFIG_FILE}\n`);
     } else {
       console.log('\n  ⚙️  TailUI Configuration\n');
       console.log(`  Stack:          ${config.stack || 'not set'}`);
@@ -937,7 +935,7 @@ function updateConfig(component: string, tokens: string[]): void {
   if (!config.components) config.components = {};
   config.components[component] = tokens;
   saveConfig(config);
-  console.log(`  📝 Updated: ${CONFIG_FILE}`);
+  console.log(`  - Updated: ${CONFIG_FILE}`);
 }
 
 function updateIndex(dir: string, component: string): void {
@@ -948,7 +946,7 @@ function updateIndex(dir: string, component: string): void {
     const content = fs.readFileSync(indexPath, 'utf8');
     if (!content.includes(importLine)) {
       fs.appendFileSync(indexPath, `${importLine}\n`);
-      console.log(`  📝 Updated: ${indexPath}`);
+      console.log(`  - Updated: ${indexPath}`);
     }
   }
 }

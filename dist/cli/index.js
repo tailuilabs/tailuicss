@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-#!/usr/bin/env node
 
 // src/cli/index.ts
 import { program } from "commander";
@@ -7,6 +6,7 @@ import fs2 from "fs";
 import path2 from "path";
 import readline from "readline";
 import https from "https";
+import { fileURLToPath } from "url";
 
 // src/config.ts
 import fs from "fs";
@@ -39,8 +39,786 @@ function resolveConfig(options = {}) {
   return { stylesDir, configPath, config };
 }
 
+// src/templates/index.ts
+var COMPONENTS = {
+  button: {
+    variants: ["primary", "secondary", "danger", "ghost", "outline"],
+    sizes: ["sm", "lg", "xl"],
+    props: ["variant", "size", "disabled", "loading", "fullWidth", "children"]
+  },
+  card: {
+    variants: ["elevated", "outlined", "flat", "hoverable", "interactive", "compact"],
+    slots: ["header", "body", "footer"],
+    props: ["variant", "hoverable", "interactive", "children"]
+  },
+  input: {
+    variants: ["error", "success", "disabled"],
+    sizes: ["sm", "lg"],
+    props: ["type", "placeholder", "value", "onChange", "error", "disabled"]
+  },
+  badge: {
+    variants: ["primary", "secondary", "success", "warning", "danger"],
+    sizes: ["sm", "lg"],
+    props: ["variant", "size", "children"]
+  },
+  alert: {
+    variants: ["info", "success", "warning", "danger"],
+    props: ["variant", "title", "children", "dismissible"]
+  },
+  modal: {
+    variants: ["centered", "fullscreen"],
+    slots: ["header", "body", "footer"],
+    props: ["open", "onClose", "title", "children"]
+  },
+  dropdown: {
+    props: ["trigger", "items", "align"]
+  },
+  select: {
+    props: ["options", "value", "onChange", "placeholder", "disabled"],
+    variants: ["error", "success", "disabled"]
+  },
+  textarea: {
+    variants: ["error", "success", "disabled"],
+    props: ["placeholder", "value", "onChange", "rows", "disabled"]
+  },
+  toggle: {
+    variants: ["sm", "lg"],
+    props: ["checked", "onChange", "disabled", "label"]
+  },
+  radio: {
+    props: ["name", "options", "value", "onChange", "disabled"]
+  },
+  progress: {
+    variants: ["sm", "lg", "striped", "animated"],
+    props: ["value", "max", "variant", "showLabel"]
+  },
+  avatar: {
+    variants: ["sm", "lg", "xl"],
+    props: ["src", "alt", "size", "fallback"]
+  },
+  tooltip: {
+    variants: ["top", "bottom", "left", "right"],
+    props: ["content", "position", "children"]
+  },
+  toast: {
+    variants: ["info", "success", "warning", "danger"],
+    props: ["variant", "title", "message", "duration", "onClose"]
+  },
+  accordion: {
+    props: ["items", "multiple", "defaultOpen"]
+  },
+  carousel: {
+    props: ["items", "autoPlay", "interval", "showDots", "showArrows"]
+  },
+  list: {
+    variants: ["bordered", "striped", "hoverable"],
+    props: ["items", "variant"]
+  },
+  "file-input": {
+    variants: ["error", "success"],
+    props: ["accept", "multiple", "onChange", "disabled"]
+  },
+  rate: {
+    variants: ["sm", "lg"],
+    props: ["value", "max", "onChange", "readonly"]
+  }
+};
+function reactButton(ts = true) {
+  if (ts) {
+    return `import React from "react";
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
+  size?: "sm" | "lg" | "xl";
+  loading?: boolean;
+  fullWidth?: boolean;
+}
+
+export function Button({
+  variant = "primary",
+  size,
+  loading = false,
+  fullWidth = false,
+  disabled,
+  className = "",
+  children,
+  ...props
+}: ButtonProps) {
+  const classes = [
+    "ui-button",
+    variant && \`ui-\${variant}\`,
+    size && \`ui-\${size}\`,
+    loading && "ui-loading",
+    fullWidth && "ui-full",
+    disabled && "ui-disabled",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <button className={classes} disabled={disabled || loading} {...props}>
+      {loading && <span className="ui-spinner" />}
+      {children}
+    </button>
+  );
+}
+`;
+  }
+  return `import React from "react";
+
+export function Button({
+  variant = "primary",
+  size,
+  loading = false,
+  fullWidth = false,
+  disabled,
+  className = "",
+  children,
+  ...props
+}) {
+  const classes = [
+    "ui-button",
+    variant && \`ui-\${variant}\`,
+    size && \`ui-\${size}\`,
+    loading && "ui-loading",
+    fullWidth && "ui-full",
+    disabled && "ui-disabled",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <button className={classes} disabled={disabled || loading} {...props}>
+      {loading && <span className="ui-spinner" />}
+      {children}
+    </button>
+  );
+}
+`;
+}
+function reactCard(ts = true) {
+  if (ts) {
+    return `import React from "react";
+
+interface CardProps {
+  variant?: "elevated" | "outlined" | "flat";
+  hoverable?: boolean;
+  interactive?: boolean;
+  compact?: boolean;
+  className?: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+
+interface CardHeaderProps {
+  className?: string;
+  children: React.ReactNode;
+  sticky?: boolean;
+}
+
+interface CardBodyProps {
+  className?: string;
+  children: React.ReactNode;
+}
+
+interface CardFooterProps {
+  className?: string;
+  children: React.ReactNode;
+}
+
+export function Card({
+  variant,
+  hoverable = false,
+  interactive = false,
+  compact = false,
+  className = "",
+  children,
+  onClick,
+}: CardProps) {
+  const classes = [
+    "ui-card",
+    variant && \`ui-\${variant}\`,
+    hoverable && "ui-hoverable",
+    interactive && "ui-interactive",
+    compact && "ui-compact",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div className={classes} onClick={onClick}>
+      {children}
+    </div>
+  );
+}
+
+export function CardHeader({ className = "", children, sticky = false }: CardHeaderProps) {
+  const classes = ["ui-header", sticky && "ui-sticky", className].filter(Boolean).join(" ");
+  return <div className={classes}>{children}</div>;
+}
+
+export function CardBody({ className = "", children }: CardBodyProps) {
+  return <div className={\`ui-body \${className}\`}>{children}</div>;
+}
+
+export function CardFooter({ className = "", children }: CardFooterProps) {
+  return <div className={\`ui-footer \${className}\`}>{children}</div>;
+}
+`;
+  }
+  return `import React from "react";
+
+export function Card({
+  variant,
+  hoverable = false,
+  interactive = false,
+  compact = false,
+  className = "",
+  children,
+  onClick,
+}) {
+  const classes = [
+    "ui-card",
+    variant && \`ui-\${variant}\`,
+    hoverable && "ui-hoverable",
+    interactive && "ui-interactive",
+    compact && "ui-compact",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div className={classes} onClick={onClick}>
+      {children}
+    </div>
+  );
+}
+
+export function CardHeader({ className = "", children, sticky = false }) {
+  const classes = ["ui-header", sticky && "ui-sticky", className].filter(Boolean).join(" ");
+  return <div className={classes}>{children}</div>;
+}
+
+export function CardBody({ className = "", children }) {
+  return <div className={\`ui-body \${className}\`}>{children}</div>;
+}
+
+export function CardFooter({ className = "", children }) {
+  return <div className={\`ui-footer \${className}\`}>{children}</div>;
+}
+`;
+}
+function reactInput(ts = true) {
+  if (ts) {
+    return `import React from "react";
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  error?: boolean;
+  success?: boolean;
+  inputSize?: "sm" | "lg";
+}
+
+export function Input({
+  error = false,
+  success = false,
+  inputSize,
+  disabled,
+  className = "",
+  ...props
+}: InputProps) {
+  const classes = [
+    "ui-input",
+    error && "ui-error",
+    success && "ui-success",
+    inputSize && \`ui-\${inputSize}\`,
+    disabled && "ui-disabled",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return <input className={classes} disabled={disabled} {...props} />;
+}
+`;
+  }
+  return `import React from "react";
+
+export function Input({
+  error = false,
+  success = false,
+  inputSize,
+  disabled,
+  className = "",
+  ...props
+}) {
+  const classes = [
+    "ui-input",
+    error && "ui-error",
+    success && "ui-success",
+    inputSize && \`ui-\${inputSize}\`,
+    disabled && "ui-disabled",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return <input className={classes} disabled={disabled} {...props} />;
+}
+`;
+}
+function reactBadge(ts = true) {
+  if (ts) {
+    return `import React from "react";
+
+interface BadgeProps {
+  variant?: "primary" | "secondary" | "success" | "warning" | "danger";
+  size?: "sm" | "lg";
+  className?: string;
+  children: React.ReactNode;
+}
+
+export function Badge({
+  variant = "primary",
+  size,
+  className = "",
+  children,
+}: BadgeProps) {
+  const classes = [
+    "ui-badge",
+    variant && \`ui-\${variant}\`,
+    size && \`ui-\${size}\`,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return <span className={classes}>{children}</span>;
+}
+`;
+  }
+  return `import React from "react";
+
+export function Badge({
+  variant = "primary",
+  size,
+  className = "",
+  children,
+}) {
+  const classes = [
+    "ui-badge",
+    variant && \`ui-\${variant}\`,
+    size && \`ui-\${size}\`,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return <span className={classes}>{children}</span>;
+}
+`;
+}
+function reactAlert(ts = true) {
+  if (ts) {
+    return `import React, { useState } from "react";
+
+interface AlertProps {
+  variant?: "info" | "success" | "warning" | "danger";
+  title?: string;
+  dismissible?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}
+
+export function Alert({
+  variant = "info",
+  title,
+  dismissible = false,
+  className = "",
+  children,
+}: AlertProps) {
+  const [visible, setVisible] = useState(true);
+
+  if (!visible) return null;
+
+  const classes = [
+    "ui-alert",
+    variant && \`ui-\${variant}\`,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div className={classes} role="alert">
+      {title && <div className="ui-title">{title}</div>}
+      <div className="ui-content">{children}</div>
+      {dismissible && (
+        <button className="ui-dismiss" onClick={() => setVisible(false)} aria-label="Dismiss">
+          &times;
+        </button>
+      )}
+    </div>
+  );
+}
+`;
+  }
+  return `import React, { useState } from "react";
+
+export function Alert({
+  variant = "info",
+  title,
+  dismissible = false,
+  className = "",
+  children,
+}) {
+  const [visible, setVisible] = useState(true);
+
+  if (!visible) return null;
+
+  const classes = [
+    "ui-alert",
+    variant && \`ui-\${variant}\`,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div className={classes} role="alert">
+      {title && <div className="ui-title">{title}</div>}
+      <div className="ui-content">{children}</div>
+      {dismissible && (
+        <button className="ui-dismiss" onClick={() => setVisible(false)} aria-label="Dismiss">
+          &times;
+        </button>
+      )}
+    </div>
+  );
+}
+`;
+}
+function reactToggle(ts = true) {
+  if (ts) {
+    return `import React from "react";
+
+interface ToggleProps {
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
+  disabled?: boolean;
+  size?: "sm" | "lg";
+  label?: string;
+  className?: string;
+}
+
+export function Toggle({
+  checked = false,
+  onChange,
+  disabled = false,
+  size,
+  label,
+  className = "",
+}: ToggleProps) {
+  const classes = [
+    "ui-toggle",
+    checked && "ui-active",
+    size && \`ui-\${size}\`,
+    disabled && "ui-disabled",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <label className="ui-toggle-wrapper">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        className={classes}
+        disabled={disabled}
+        onClick={() => onChange?.(!checked)}
+      >
+        <span className="ui-toggle-thumb" />
+      </button>
+      {label && <span className="ui-toggle-label">{label}</span>}
+    </label>
+  );
+}
+`;
+  }
+  return `import React from "react";
+
+export function Toggle({
+  checked = false,
+  onChange,
+  disabled = false,
+  size,
+  label,
+  className = "",
+}) {
+  const classes = [
+    "ui-toggle",
+    checked && "ui-active",
+    size && \`ui-\${size}\`,
+    disabled && "ui-disabled",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <label className="ui-toggle-wrapper">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        className={classes}
+        disabled={disabled}
+        onClick={() => onChange?.(!checked)}
+      >
+        <span className="ui-toggle-thumb" />
+      </button>
+      {label && <span className="ui-toggle-label">{label}</span>}
+    </label>
+  );
+}
+`;
+}
+function vueButton() {
+  return `<template>
+  <button :class="classes" :disabled="disabled || loading" v-bind="$attrs">
+    <span v-if="loading" class="ui-spinner" />
+    <slot />
+  </button>
+</template>
+
+<script setup lang="ts">
+interface Props {
+  variant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
+  size?: "sm" | "lg" | "xl";
+  loading?: boolean;
+  fullWidth?: boolean;
+  disabled?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  variant: "primary",
+  loading: false,
+  fullWidth: false,
+  disabled: false,
+});
+
+const classes = computed(() => [
+  "ui-button",
+  props.variant && \`ui-\${props.variant}\`,
+  props.size && \`ui-\${props.size}\`,
+  props.loading && "ui-loading",
+  props.fullWidth && "ui-full",
+  props.disabled && "ui-disabled",
+].filter(Boolean).join(" "));
+</script>
+`;
+}
+function vueCard() {
+  return `<template>
+  <div :class="classes" @click="$emit('click')">
+    <slot />
+  </div>
+</template>
+
+<script setup lang="ts">
+interface Props {
+  variant?: "elevated" | "outlined" | "flat";
+  hoverable?: boolean;
+  interactive?: boolean;
+  compact?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  hoverable: false,
+  interactive: false,
+  compact: false,
+});
+
+defineEmits<{ click: [] }>();
+
+const classes = computed(() => [
+  "ui-card",
+  props.variant && \`ui-\${props.variant}\`,
+  props.hoverable && "ui-hoverable",
+  props.interactive && "ui-interactive",
+  props.compact && "ui-compact",
+].filter(Boolean).join(" "));
+</script>
+`;
+}
+function svelteButton() {
+  return `<script lang="ts">
+  export let variant: "primary" | "secondary" | "danger" | "ghost" | "outline" = "primary";
+  export let size: "sm" | "lg" | "xl" | undefined = undefined;
+  export let loading = false;
+  export let fullWidth = false;
+  export let disabled = false;
+
+  $: classes = [
+    "ui-button",
+    variant && \`ui-\${variant}\`,
+    size && \`ui-\${size}\`,
+    loading && "ui-loading",
+    fullWidth && "ui-full",
+    disabled && "ui-disabled",
+  ].filter(Boolean).join(" ");
+</script>
+
+<button class={classes} {disabled} {...$$restProps}>
+  {#if loading}
+    <span class="ui-spinner" />
+  {/if}
+  <slot />
+</button>
+`;
+}
+function svelteCard() {
+  return `<script lang="ts">
+  export let variant: "elevated" | "outlined" | "flat" | undefined = undefined;
+  export let hoverable = false;
+  export let interactive = false;
+  export let compact = false;
+
+  $: classes = [
+    "ui-card",
+    variant && \`ui-\${variant}\`,
+    hoverable && "ui-hoverable",
+    interactive && "ui-interactive",
+    compact && "ui-compact",
+  ].filter(Boolean).join(" ");
+</script>
+
+<div class={classes} on:click {...$$restProps}>
+  <slot />
+</div>
+`;
+}
+function angularButtonTS() {
+  return `import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'ui-button',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './button.component.html',
+})
+export class ButtonComponent {
+  @Input() variant: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' = 'primary';
+  @Input() size?: 'sm' | 'lg' | 'xl';
+  @Input() loading = false;
+  @Input() fullWidth = false;
+  @Input() disabled = false;
+
+  get classes(): string {
+    return [
+      'ui-button',
+      this.variant && \`ui-\${this.variant}\`,
+      this.size && \`ui-\${this.size}\`,
+      this.loading && 'ui-loading',
+      this.fullWidth && 'ui-full',
+      this.disabled && 'ui-disabled',
+    ].filter(Boolean).join(' ');
+  }
+}
+`;
+}
+function angularButtonHTML() {
+  return `<button [class]="classes" [disabled]="disabled || loading">
+  <span *ngIf="loading" class="ui-spinner"></span>
+  <ng-content></ng-content>
+</button>
+`;
+}
+function angularCardTS() {
+  return `import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'ui-card',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './card.component.html',
+})
+export class CardComponent {
+  @Input() variant?: 'elevated' | 'outlined' | 'flat';
+  @Input() hoverable = false;
+  @Input() interactive = false;
+  @Input() compact = false;
+  @Output() cardClick = new EventEmitter<void>();
+
+  get classes(): string {
+    return [
+      'ui-card',
+      this.variant && \`ui-\${this.variant}\`,
+      this.hoverable && 'ui-hoverable',
+      this.interactive && 'ui-interactive',
+      this.compact && 'ui-compact',
+    ].filter(Boolean).join(' ');
+  }
+}
+`;
+}
+function angularCardHTML() {
+  return `<div [class]="classes" (click)="cardClick.emit()">
+  <ng-content></ng-content>
+</div>
+`;
+}
+var TEMPLATES = {
+  react: {
+    button: reactButton,
+    card: reactCard,
+    input: reactInput,
+    badge: reactBadge,
+    alert: reactAlert,
+    toggle: reactToggle
+  },
+  vue: {
+    button: vueButton,
+    card: vueCard
+  },
+  svelte: {
+    button: svelteButton,
+    card: svelteCard
+  },
+  angular: {
+    button: { ts: angularButtonTS, html: angularButtonHTML },
+    card: { ts: angularCardTS, html: angularCardHTML }
+  }
+};
+function getTemplate(component, stack, isTypeScript = true) {
+  const stackTemplates = TEMPLATES[stack] || TEMPLATES.react;
+  const template = stackTemplates[component];
+  if (!template) {
+    return null;
+  }
+  if (stack === "angular") {
+    return template;
+  }
+  if (typeof template === "function") {
+    return template(isTypeScript);
+  }
+  return template;
+}
+function getAvailableComponents() {
+  return Object.keys(COMPONENTS);
+}
+
 // src/cli/index.ts
 import { createRequire } from "module";
+var __filename = fileURLToPath(import.meta.url);
+var __dirname = path2.dirname(__filename);
 var require2 = createRequire(import.meta.url);
 var pkg = require2("../../package.json");
 process.on("unhandledRejection", (err) => {
@@ -104,7 +882,7 @@ program.command("create <component>").description("Create a new UI component sty
   const filePath = path2.join(dir, `ui.${component}.css`);
   if (!fs2.existsSync(dir)) {
     fs2.mkdirSync(dir, { recursive: true });
-    console.log(`  \u{1F4C1} Created directory: ${dir}`);
+    console.log(`  - Created directory: ${dir}`);
   }
   if (fs2.existsSync(filePath)) {
     console.log(`  \u26A0\uFE0F  Component "${component}" already exists at ${filePath}`);
@@ -118,7 +896,7 @@ program.command("create <component>").description("Create a new UI component sty
   }
   const template = generateTemplate(component, variants);
   fs2.writeFileSync(filePath, template);
-  console.log(` \u2611\uFE0F Created: ${filePath}`);
+  console.log(` - Created: ${filePath}`);
   updateConfig(component, variants);
   updateIndex(dir, component);
   console.log(`
@@ -139,7 +917,6 @@ program.command("add <component>").description("Add a TailUI component to your p
     console.log("  \u274C No ui.config.json found. Run: npx tailui init");
     process.exit(1);
   }
-  const { getTemplate, getAvailableComponents } = require2("../templates");
   const availableComponents = getAvailableComponents();
   if (!availableComponents.includes(component)) {
     console.error(`  \u274C Component "${component}" not found in TailUI library.`);
@@ -161,19 +938,19 @@ program.command("add <component>").description("Add a TailUI component to your p
   }
   if (!fs2.existsSync(stylesDir)) {
     fs2.mkdirSync(stylesDir, { recursive: true });
-    console.log(`  \u{1F4C1} Created: ${stylesDir}`);
+    console.log(`  - Created: ${stylesDir}`);
   }
   if (fs2.existsSync(cssDestPath) && !options.overwrite) {
     console.log(`  \u26A0\uFE0F  ${cssDestPath} already exists. Use --overwrite to replace.`);
   } else {
     fs2.copyFileSync(cssSourcePath, cssDestPath);
-    console.log(`  \u2611\uFE0F Copied: ${cssDestPath}`);
+    console.log(`  - Copied: ${cssDestPath}`);
     updateIndex(stylesDir, component);
   }
   if (!options.cssOnly) {
     if (!fs2.existsSync(componentsDir)) {
       fs2.mkdirSync(componentsDir, { recursive: true });
-      console.log(`  \u{1F4C1} Created: ${componentsDir}`);
+      console.log(`  - Created: ${componentsDir}`);
     }
     const ext = getExtension(stack, isTypeScript);
     const componentName = capitalize(component);
@@ -182,17 +959,17 @@ program.command("add <component>").description("Add a TailUI component to your p
       if (template && "ts" in template && "html" in template) {
         const tsPath = path2.join(componentsDir, `${component}.component.ts`);
         const htmlPath = path2.join(componentsDir, `${component}.component.html`);
-        if (fs2.existsSync(tsPath) && !options.overwrite) {
-          console.log(`  \u26A0\uFE0F  ${tsPath} already exists. Use --overwrite to replace.`);
-        } else {
+        if (!fs2.existsSync(tsPath) || options.overwrite) {
           fs2.writeFileSync(tsPath, template.ts());
-          console.log(` \u2611\uFE0F Generated: ${tsPath}`);
-        }
-        if (fs2.existsSync(htmlPath) && !options.overwrite) {
-          console.log(`  \u26A0\uFE0F  ${htmlPath} already exists. Use --overwrite to replace.`);
+          console.log(`  - Generated: ${tsPath}`);
         } else {
+          console.log(`  \u26A0\uFE0F  ${tsPath} already exists. Use --overwrite to replace.`);
+        }
+        if (!fs2.existsSync(htmlPath) || options.overwrite) {
           fs2.writeFileSync(htmlPath, template.html());
-          console.log(`\u2611\uFE0F Generated: ${htmlPath}`);
+          console.log(`  - Generated: ${htmlPath}`);
+        } else {
+          console.log(`  \u26A0\uFE0F  ${htmlPath} already exists. Use --overwrite to replace.`);
         }
       } else {
         console.log(`  \u2139\uFE0F  No Angular template for ${component}. CSS only.`);
@@ -200,13 +977,12 @@ program.command("add <component>").description("Add a TailUI component to your p
     } else {
       const template = getTemplate(component, stack, isTypeScript);
       if (template) {
-        const fileName = `${componentName}.${ext}`;
-        const filePath = path2.join(componentsDir, fileName);
-        if (fs2.existsSync(filePath) && !options.overwrite) {
-          console.log(`  \u26A0\uFE0F  ${filePath} already exists. Use --overwrite to replace.`);
-        } else {
+        const filePath = path2.join(componentsDir, `${componentName}.${ext}`);
+        if (!fs2.existsSync(filePath) || options.overwrite) {
           fs2.writeFileSync(filePath, template);
-          console.log(` \u2611\uFE0F  Generated: ${filePath}`);
+          console.log(`  - Generated: ${filePath}`);
+        } else {
+          console.log(`  \u26A0\uFE0F  ${filePath} already exists. Use --overwrite to replace.`);
         }
       } else {
         console.log(`  \u2139\uFE0F  No ${stack} template for ${component}. CSS only.`);
@@ -214,16 +990,11 @@ program.command("add <component>").description("Add a TailUI component to your p
     }
   }
   console.log(`
-  \u{1F389} Done! Use the component:
-`);
+  \u{1F389} Done! `);
   if (stack === "react" || stack === "nextjs") {
-    console.log(`  import { ${capitalize(component)} } from "${componentsDir.replace("./", "@/")}/${capitalize(component)}";`);
   } else if (stack === "vue" || stack === "nuxt") {
-    console.log(`  <${capitalize(component)} />`);
   } else if (stack === "svelte" || stack === "sveltekit") {
-    console.log(`  import ${capitalize(component)} from "${componentsDir}/${capitalize(component)}.svelte";`);
   } else if (stack === "angular") {
-    console.log(`  <ui-${component}></ui-${component}>`);
   } else {
     console.log(`  <div class="ui-${component}">...</div>`);
   }
@@ -346,7 +1117,7 @@ program.command("init").description("Initialize TailUI in the current project").
     const apiKey = await askQuestion(`  Enter your ${provider} API key:`, "");
     if (apiKey) {
       ai = { provider, apiKey };
-      console.log(`  \u2192 AI: ${provider} \u2611\uFE0F
+      console.log(`  \u2192 AI: ${provider} 
 `);
     } else {
       console.log("  \u2192 AI: skipped (no key provided)\n");
@@ -364,20 +1135,20 @@ program.command("init").description("Initialize TailUI in the current project").
   }
   if (!fs2.existsSync(stylesDir)) {
     fs2.mkdirSync(stylesDir, { recursive: true });
-    console.log(`  \u{1F4C1} Created: ${stylesDir}`);
+    console.log(`  - Created: ${stylesDir}`);
   }
   if (!fs2.existsSync(componentsDir)) {
     fs2.mkdirSync(componentsDir, { recursive: true });
-    console.log(`  \u{1F4C1} Created: ${componentsDir}`);
+    console.log(`  - Created: ${componentsDir}`);
   }
   const indexPath = path2.join(stylesDir, "index.css");
   if (!fs2.existsSync(indexPath)) {
     fs2.writeFileSync(indexPath, `/* TailUI \u2014 Component Styles Entry Point */
 `);
-    console.log(`  \u{1F4C4} Created: ${indexPath}`);
+    console.log(`  - Created: ${indexPath}`);
   }
   const config = {
-    version: "1.0.0",
+    version: "2.3.0",
     stack,
     directory: dirName,
     stylesDir,
@@ -387,7 +1158,7 @@ program.command("init").description("Initialize TailUI in the current project").
     variables: {}
   };
   fs2.writeFileSync(configPath, JSON.stringify(config, null, 2));
-  console.log(`  \u{1F4C4} Created: ${CONFIG_FILE}`);
+  console.log(`  - Created: ${CONFIG_FILE}`);
   if (ai) {
     const gitignorePath = path2.join(process.cwd(), ".gitignore");
     if (fs2.existsSync(gitignorePath)) {
@@ -478,7 +1249,7 @@ program.command("generate <component>").description("Generate a framework compon
       }
     }
     fs2.writeFileSync(filePath, code);
-    console.log(` \u2611\uFE0F  Generated: ${filePath}`);
+    console.log(` -  Generated: ${filePath}`);
     console.log(`
   The component uses TailUI .ui-* classes from your styles.`);
     console.log(`  Import it in your project and start using it!
@@ -503,7 +1274,7 @@ program.command("config").description("View or update TailUI configuration").opt
     }
     config.stack = options.setStack;
     changed = true;
-    console.log(`  \u2611\uFE0F  Stack set to: ${options.setStack}`);
+    console.log(`  -  Stack set to: ${options.setStack}`);
   }
   if (options.setAi) {
     if (!AI_PROVIDERS.includes(options.setAi)) {
@@ -513,13 +1284,13 @@ program.command("config").description("View or update TailUI configuration").opt
     if (!config.ai) config.ai = { provider: options.setAi, apiKey: "" };
     config.ai.provider = options.setAi;
     changed = true;
-    console.log(`  \u2611\uFE0F  AI provider set to: ${options.setAi}`);
+    console.log(`  -  AI provider set to: ${options.setAi}`);
   }
   if (options.setKey) {
     if (!config.ai) config.ai = { provider: "openai", apiKey: "" };
     config.ai.apiKey = options.setKey;
     changed = true;
-    console.log(`  \u2611\uFE0F  AI API key updated`);
+    console.log(`  -  AI API key updated`);
     const gitignorePath = path2.join(process.cwd(), ".gitignore");
     if (fs2.existsSync(gitignorePath)) {
       const gitignoreContent = fs2.readFileSync(gitignorePath, "utf8");
@@ -534,7 +1305,7 @@ ${CONFIG_FILE}
   }
   if (changed) {
     saveConfig(config);
-    console.log(`  \u{1F4DD} Saved: ${CONFIG_FILE}
+    console.log(`  - Saved: ${CONFIG_FILE}
 `);
   } else {
     console.log("\n  \u2699\uFE0F  TailUI Configuration\n");
@@ -775,7 +1546,7 @@ function updateConfig(component, tokens) {
   if (!config.components) config.components = {};
   config.components[component] = tokens;
   saveConfig(config);
-  console.log(`  \u{1F4DD} Updated: ${CONFIG_FILE}`);
+  console.log(`  - Updated: ${CONFIG_FILE}`);
 }
 function updateIndex(dir, component) {
   const indexPath = path2.join(dir, "index.css");
@@ -785,7 +1556,7 @@ function updateIndex(dir, component) {
     if (!content.includes(importLine)) {
       fs2.appendFileSync(indexPath, `${importLine}
 `);
-      console.log(`  \u{1F4DD} Updated: ${indexPath}`);
+      console.log(`  - Updated: ${indexPath}`);
     }
   }
 }
