@@ -3,8 +3,8 @@
   "version": "2.2.1",
   "description": "A semantic CSS-first layer on top of Tailwind CSS. Write class=\"ui-button ui-primary\" instead of 40 utility classes.",
   "type": "module",
-  "main": "./dist/plugin/index.js",
-  "module": "./dist/plugin/index.mjs",
+  "main": "./dist/plugin/index.cjs",
+  "module": "./dist/plugin/index.js",
   "types": "./dist/plugin/index.d.ts",
   "exports": {
     ".": {
@@ -39,7 +39,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "dev": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss --watch",
+    "dev": "npm run build && npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss postcss.config.cjs --watch",
     "build": "tsup",
     "dev:build": "tsup src/plugin/index.ts --format esm,cjs --dts --watch",
     "prepublishOnly": "npm run typecheck && npm run build",
@@ -94,6 +94,7 @@
   "bugs": {
     "url": "https://github.com/tailuilabs/tailuicss/issues"
   },
+  "postbuild": "chmod +x dist/cli/index.js",
   "publishConfig": {
     "access": "public"
   },

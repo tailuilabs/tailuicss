@@ -146,4 +146,6 @@ function processStyleBlocks(css) {
   }
   return result;
 }
+module.exports = module.exports.default ?? module.exports;
+module.exports.postcss = true;
 //# sourceMappingURL=index.cjs.map
