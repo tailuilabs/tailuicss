@@ -1,31 +1,43 @@
 /**
  * TailUI Migration — Tag-First Pattern Definitions
- *
- * PHILOSOPHY: The HTML tag is the PRIMARY signal. We do NOT guess
- * what a component is from classes alone. The tag tells us what it IS,
- * the classes tell us which VARIANT it is.
- *
- * TAG_MAP: tag → component mapping (deterministic, no guessing)
- * ATTR_MAP: attribute → component mapping (for ambiguous tags like <div>)
- * CONFIRM_CLASSES: classes that confirm a tag-based match
- * VARIANT_RULES: classes that determine which .ui-* variant to apply
  */
 
-// ─── TAG → COMPONENT (deterministic) ──────────────────────────
-// These tags have a 1:1 mapping to a TailUI component.
-// If the tag is <button>, it IS a button. Period.
-const TAG_MAP = {
+// --- Types & Interfaces ---
+
+export interface VariantDefinition {
+  name: string;
+  indicators: string[];
+  min: number;
+}
+
+export interface ComponentDefinition {
+  uiClass: string;
+  confirm: string[];
+  confirmMin: number;
+  variants: VariantDefinition[];
+}
+
+export interface AttrRule {
+  attrs: string[];
+  component: string;
+  uiClass: string;
+  minAttrs: number;
+}
+
+// --- TAG → COMPONENT Mapping ---
+
+export const TAG_MAP: Record<string, string | null> = {
   button:   'button',
   input:    'input',
   textarea: 'textarea',
   select:   'select',
-  label:    null,       // ambiguous: could be toggle, radio, or file-input — resolved by attrs/classes
-  a:        null,       // ambiguous: could be button-like link — resolved by classes
+  label:    null,       // Ambiguous: resolved by attrs/classes
+  a:        null,       // Ambiguous: resolved by classes
 };
 
-// ─── ATTR → COMPONENT (for ambiguous tags) ─────────────────────
-// When the tag is <div>, <span>, etc., attributes disambiguate.
-const ATTR_RULES = [
+// --- ATTR → COMPONENT Mapping ---
+
+export const ATTR_RULES: AttrRule[] = [
   { attrs: ['role="dialog"', 'aria-modal'],  component: 'modal',    uiClass: 'ui-modal',    minAttrs: 1 },
   { attrs: ['role="alert"'],                 component: 'alert',    uiClass: 'ui-alert',    minAttrs: 1 },
   { attrs: ['role="progressbar"'],           component: 'progress', uiClass: 'ui-progress', minAttrs: 1 },
@@ -34,16 +46,12 @@ const ATTR_RULES = [
   { attrs: ['role="status"'],                component: 'toast',    uiClass: 'ui-toast',    minAttrs: 1 },
 ];
 
-// ─── COMPONENT DEFINITIONS ─────────────────────────────────────
-// Each component defines:
-//   - uiClass:     the .ui-* class to apply
-//   - confirm:     classes that MUST be present (at least confirmMin of them)
-//   - confirmMin:  minimum number of confirm classes needed
-//   - variants:    sub-patterns for variant detection
-const COMPONENTS = {
+// --- COMPONENT DEFINITIONS ---
+
+export const COMPONENTS: Record<string, ComponentDefinition> = {
   button: {
     uiClass: 'ui-button',
-    confirm: ['rounded', 'font-medium', 'font-semibold', 'font-bold', 'px-', 'py-', 'inline-flex', 'cursor-pointer'],
+    confirm: ['rounded', 'font-', 'px-', 'py-', 'inline-flex', 'cursor-pointer', 'bg-', 'text-', 'border'],
     confirmMin: 2,
     variants: [
       { name: 'ui-primary',   indicators: ['bg-blue-', 'text-white'],                          min: 2 },
@@ -56,7 +64,7 @@ const COMPONENTS = {
 
   input: {
     uiClass: 'ui-input',
-    confirm: ['border', 'rounded', 'px-', 'py-', 'outline-none', 'bg-white', 'text-sm'],
+    confirm: ['border', 'rounded', 'px-', 'py-', 'outline-', 'bg-', 'text-'],
     confirmMin: 2,
     variants: [
       { name: 'ui-error',   indicators: ['border-red-', 'text-red-'],   min: 1 },
@@ -66,7 +74,7 @@ const COMPONENTS = {
 
   textarea: {
     uiClass: 'ui-textarea',
-    confirm: ['border', 'rounded', 'px-', 'py-', 'resize-y', 'resize-none'],
+    confirm: ['border', 'rounded', 'px-', 'py-', 'resize-y', 'resize-none', 'bg-', 'text-'],
     confirmMin: 2,
     variants: [
       { name: 'ui-error',   indicators: ['border-red-'],   min: 1 },
@@ -76,12 +84,11 @@ const COMPONENTS = {
 
   select: {
     uiClass: 'ui-select',
-    confirm: ['border', 'rounded', 'px-', 'py-', 'bg-white', 'appearance-none'],
+    confirm: ['border', 'rounded', 'px-', 'py-', 'bg-', 'text-', 'appearance-none'],
     confirmMin: 1,
     variants: [],
   },
 
-  // ─── <a> resolved as button when it has button-like classes ──
   'link-button': {
     uiClass: 'ui-button',
     confirm: ['rounded', 'font-medium', 'font-semibold', 'font-bold', 'px-', 'py-', 'inline-flex', 'bg-'],
@@ -95,7 +102,6 @@ const COMPONENTS = {
     ],
   },
 
-  // ─── <label> resolved by inner content / classes ─────────────
   toggle: {
     uiClass: 'ui-toggle',
     confirm: ['inline-flex', 'items-center', 'cursor-pointer', 'gap-'],
@@ -117,10 +123,9 @@ const COMPONENTS = {
     variants: [],
   },
 
-  // ─── Attribute-resolved components (for <div>, etc.) ─────────
   modal: {
     uiClass: 'ui-modal',
-    confirm: ['bg-white', 'rounded', 'shadow', 'z-50', 'max-w-'],
+    confirm: ['bg-', 'rounded', 'shadow', 'z-50', 'max-w-'],
     confirmMin: 2,
     variants: [],
   },
@@ -146,7 +151,7 @@ const COMPONENTS = {
 
   'dropdown-menu': {
     uiClass: 'ui-menu',
-    confirm: ['absolute', 'z-50', 'bg-white', 'border', 'rounded', 'shadow-lg'],
+    confirm: ['absolute', 'z-50', 'bg-', 'border', 'rounded', 'shadow-lg'],
     confirmMin: 5,
     variants: [],
   },
@@ -170,11 +175,9 @@ const COMPONENTS = {
     ],
   },
 
-  // ─── Class-only fallbacks for generic tags (<div>, <span>) ───
-  // These require STRONG class signals since the tag is ambiguous.
   card: {
     uiClass: 'ui-card',
-    confirm: ['rounded', 'border', 'bg-white', 'overflow-hidden'],
+    confirm: ['rounded', 'border', 'bg-', 'overflow-hidden'],
     confirmMin: 3,
     variants: [
       { name: 'ui-elevated', indicators: ['shadow-lg', 'shadow-xl'],                 min: 1 },
@@ -204,37 +207,30 @@ const COMPONENTS = {
 
   overlay: {
     uiClass: 'ui-overlay',
-    confirm: ['fixed', 'inset-0', 'bg-black', 'z-40'],
+    confirm: ['fixed', 'inset-0', 'bg-', 'z-40'],
     confirmMin: 3,
     variants: [],
   },
 };
 
-// ─── CLASS-BASED FALLBACK RULES ────────────────────────────────
-// For generic tags (<div>, <span>, <section>, <article>) where no
-// attribute gives us a clear signal, we try these patterns IN ORDER.
-// Higher specificity patterns come first. Each requires a HIGH confirmMin.
-const GENERIC_TAG_RULES = [
-  // Very specific patterns first (all require 4+ confirm classes)
-  'overlay',        // fixed inset-0 bg-black z-40
-  'dropdown-menu',  // absolute z-50 bg-white border rounded shadow-lg (4 min)
-  'file-input',     // border-2 border-dashed rounded cursor-pointer
-  'progress',       // w-full bg-gray-200 rounded-full overflow-hidden (ALL 4 required)
-  // High specificity (4+ confirmMin)
-  'avatar',         // rounded-full overflow-hidden inline-flex items-center justify-center (4 min)
-  'badge',          // inline-flex items-center rounded-full text-xs font-medium (4 min)
-  'toast',          // flex items-start rounded shadow-lg border text-sm (4 min)
-  // Medium specificity (3 confirmMin)
-  'card',           // rounded border bg-white overflow-hidden
-  'alert',          // flex items-start rounded border text-sm
-  'list',           // flex flex-col divide-y border rounded
+// --- GENERIC TAG RULES ---
+
+export const GENERIC_TAG_RULES: string[] = [
+  'overlay',
+  'dropdown-menu',
+  'file-input',
+  'progress',
+  'avatar',
+  'badge',
+  'toast',
+  'card',
+  'alert',
+  'list',
 ];
 
-/**
- * Classes that are considered "structural" / contextual and should be
- * preserved alongside the .ui-* class after migration.
- */
-const PRESERVE_PATTERNS = [
+// --- PRESERVATION LOGIC ---
+
+export const PRESERVE_PATTERNS: RegExp[] = [
   // Spacing
   /^m[trblxy]?-/,
   /^-m[trblxy]?-/,
@@ -250,7 +246,7 @@ const PRESERVE_PATTERNS = [
   /^top-/, /^right-/, /^bottom-/, /^left-/, /^inset-/, /^z-/,
   // Display
   /^block$/, /^inline$/, /^inline-block$/, /^hidden$/, /^visible$/, /^invisible$/,
-  // Responsive prefixes (keep all responsive variants)
+  // Responsive prefixes
   /^(sm|md|lg|xl|2xl):/,
   // Container
   /^container$/,
@@ -263,15 +259,6 @@ const PRESERVE_PATTERNS = [
 /**
  * Check if a Tailwind class should be preserved (not consumed by migration).
  */
-function shouldPreserve(cls) {
+export function shouldPreserve(cls: string): boolean {
   return PRESERVE_PATTERNS.some(re => re.test(cls));
 }
-
-module.exports = {
-  TAG_MAP,
-  ATTR_RULES,
-  COMPONENTS,
-  GENERIC_TAG_RULES,
-  PRESERVE_PATTERNS,
-  shouldPreserve,
-};

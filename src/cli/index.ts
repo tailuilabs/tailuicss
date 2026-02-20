@@ -1,35 +1,82 @@
 #!/usr/bin/env node
 
-const { program } = require('commander');
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
-const https = require('https');
-const { resolveConfig, CONFIG_FILE, DEFAULT_DIR } = require('../config');
+import { program } from 'commander';
+import fs from 'fs';
+import path from 'path';
+import readline from 'readline';
+import https from 'https';
+import { resolveConfig, CONFIG_FILE, DEFAULT_DIR } from '../config';
+import { createRequire } from 'module';
 
-const pkg = require('../../package.json');
+const require = createRequire(import.meta.url);
+const pkg = require('../../package.json') as { version: string };
 
 // Catch unhandled promise rejections (async commands)
-process.on('unhandledRejection', (err) => {
-  console.error(`  ❌ Unexpected error: ${err.message || err}`);
+process.on('unhandledRejection', (err: unknown) => {
+  const message = err instanceof Error ? err.message : String(err);
+  console.error(`  ❌ Unexpected error: ${message}`);
   process.exit(1);
 });
 
+// ─── Types ──────────────────────────────────────────────────────
+
+type Stack = 'react' | 'nextjs' | 'vue' | 'nuxt' | 'svelte' | 'sveltekit' | 'angular' | 'astro' | 'html';
+type AIProvider = 'openai' | 'claude' | 'gemini' | 'mistral';
+
+interface AIEndpoint {
+  url: string;
+  model: string;
+}
+
+interface AIConfig {
+  provider: AIProvider;
+  apiKey: string;
+}
+
+interface TailUIConfig {
+  version?: string;
+  stack?: Stack;
+  directory?: string;
+  stylesDir?: string;
+  componentsDir?: string;
+  ai?: AIConfig;
+  components?: Record<string, string[]>;
+  variables?: Record<string, string[]>;
+  slots?: string[];
+}
+
+interface AngularTemplate {
+  ts: () => string;
+  html: () => string;
+}
+
+interface MigrateOptions {
+  target?: string;
+  all?: boolean;
+  dryRun?: boolean;
+  interactive?: boolean;
+  force?: boolean;
+  threshold?: number;
+  undo?: boolean;
+  ai?: boolean;
+  aiConfig?: AIConfig | null;
+}
+
 // ─── Constants ──────────────────────────────────────────────────
 
-const STACKS = ['react', 'nextjs', 'vue', 'nuxt', 'svelte', 'sveltekit', 'angular', 'astro', 'html'];
-const AI_PROVIDERS = ['openai', 'claude', 'gemini', 'mistral'];
+const STACKS: Stack[] = ['react', 'nextjs', 'vue', 'nuxt', 'svelte', 'sveltekit', 'angular', 'astro', 'html'];
+const AI_PROVIDERS: AIProvider[] = ['openai', 'claude', 'gemini', 'mistral'];
 const COMPONENT_NAME_RE = /^[a-z][a-z0-9-]*$/;
 const TOKEN_NAME_RE = /^[a-z][a-z0-9-]*$/;
 
-const AI_ENDPOINTS = {
+const AI_ENDPOINTS: Record<AIProvider, AIEndpoint> = {
   openai:  { url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o' },
   claude:  { url: 'https://api.anthropic.com/v1/messages', model: 'claude-sonnet-4-20250514' },
   gemini:  { url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', model: 'gemini-pro' },
   mistral: { url: 'https://api.mistral.ai/v1/chat/completions', model: 'mistral-large-latest' },
 };
 
-const STACK_EXTENSIONS = {
+const STACK_EXTENSIONS: Record<Stack, string> = {
   react: 'tsx', nextjs: 'tsx', vue: 'vue', nuxt: 'vue',
   svelte: 'svelte', sveltekit: 'svelte', angular: 'ts',
   astro: 'astro', html: 'html',
@@ -42,30 +89,30 @@ program
 
 // ─── Helper: get styles dir from config ─────────────────────────
 
-function getStylesDir(optionDir) {
+function getStylesDir(optionDir?: string): string {
   if (optionDir) return optionDir;
   const { stylesDir } = resolveConfig();
   return stylesDir;
 }
 
-function loadConfig() {
+function loadConfig(): TailUIConfig | null {
   const configPath = path.join(process.cwd(), CONFIG_FILE);
   if (!fs.existsSync(configPath)) return null;
   try {
-    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    return JSON.parse(fs.readFileSync(configPath, 'utf8')) as TailUIConfig;
   } catch (e) {
-    console.error(`  ❌ Failed to parse ${CONFIG_FILE}: ${e.message}`);
+    console.error(`  ❌ Failed to parse ${CONFIG_FILE}: ${(e as Error).message}`);
     console.error(`  Fix the JSON syntax or delete the file and run: npx tailui init`);
     process.exit(1);
   }
 }
 
-function saveConfig(config) {
+function saveConfig(config: TailUIConfig): void {
   const configPath = path.join(process.cwd(), CONFIG_FILE);
   try {
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
   } catch (e) {
-    console.error(`  ❌ Failed to write ${CONFIG_FILE}: ${e.message}`);
+    console.error(`  ❌ Failed to write ${CONFIG_FILE}: ${(e as Error).message}`);
     process.exit(1);
   }
 }
@@ -76,7 +123,7 @@ program
   .description('Create a new UI component style file')
   .option('-d, --dir <path>', 'Override styles directory')
   .option('-v, --variants <variants>', 'Comma-separated list of variants', '')
-  .action((component, options) => {
+  .action((component: string, options: { dir?: string; variants?: string }) => {
     if (!COMPONENT_NAME_RE.test(component)) {
       console.error(`  ❌ Invalid component name "${component}". Use lowercase letters, numbers, and hyphens (e.g. "my-button").`);
       process.exit(1);
@@ -85,19 +132,16 @@ program
     const dir = getStylesDir(options.dir);
     const filePath = path.join(dir, `ui.${component}.css`);
 
-    // Ensure directory exists
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
       console.log(`  📁 Created directory: ${dir}`);
     }
 
-    // Check if file already exists
     if (fs.existsSync(filePath)) {
       console.log(`  ⚠️  Component "${component}" already exists at ${filePath}`);
       process.exit(0);
     }
 
-    // Parse and validate variants
     const variants = options.variants
       ? options.variants.split(',').map(v => v.trim()).filter(Boolean)
       : ['default'];
@@ -108,15 +152,11 @@ program
       process.exit(1);
     }
 
-    // Generate template
     const template = generateTemplate(component, variants);
     fs.writeFileSync(filePath, template);
     console.log(`  ✅ Created: ${filePath}`);
 
-    // Update config
     updateConfig(component, variants);
-
-    // Update index.css
     updateIndex(dir, component);
 
     console.log(`\n  Usage:`);
@@ -133,7 +173,7 @@ program
   .description('Add a TailUI component to your project (CSS + framework component)')
   .option('--css-only', 'Only copy the CSS file, skip framework component generation')
   .option('--overwrite', 'Overwrite existing files')
-  .action(async (component, options) => {
+  .action(async (component: string, options: { cssOnly?: boolean; overwrite?: boolean }) => {
     if (!COMPONENT_NAME_RE.test(component)) {
       console.error(`  ❌ Invalid component name "${component}". Use lowercase letters, numbers, and hyphens.`);
       process.exit(1);
@@ -145,9 +185,12 @@ program
       process.exit(1);
     }
 
-    const { getTemplate, getAvailableComponents, hasTemplate } = require('../templates');
+    const { getTemplate, getAvailableComponents } = require('../templates') as {
+      getTemplate: (component: string, stack: string, isTypeScript: boolean) => string | AngularTemplate | null;
+      getAvailableComponents: () => string[];
+      hasTemplate: (component: string) => boolean;
+    };
 
-    // Check if component exists in TailUI library
     const availableComponents = getAvailableComponents();
     if (!availableComponents.includes(component)) {
       console.error(`  ❌ Component "${component}" not found in TailUI library.`);
@@ -159,7 +202,6 @@ program
     const componentsDir = config.componentsDir || './src/components/ui';
     const stack = config.stack || 'react';
 
-    // Detect TypeScript
     const isTypeScript = fs.existsSync(path.join(process.cwd(), 'tsconfig.json'));
 
     console.log(`\n  📦 Adding ${component} component...\n`);
@@ -173,26 +215,21 @@ program
       process.exit(1);
     }
 
-    // Ensure styles directory exists
     if (!fs.existsSync(stylesDir)) {
       fs.mkdirSync(stylesDir, { recursive: true });
       console.log(`  📁 Created: ${stylesDir}`);
     }
 
-    // Check if CSS already exists
     if (fs.existsSync(cssDestPath) && !options.overwrite) {
       console.log(`  ⚠️  ${cssDestPath} already exists. Use --overwrite to replace.`);
     } else {
       fs.copyFileSync(cssSourcePath, cssDestPath);
       console.log(`  ✅ Copied: ${cssDestPath}`);
-
-      // Update index.css
       updateIndex(stylesDir, component);
     }
 
     // ── Step 2: Generate framework component ──
     if (!options.cssOnly) {
-      // Ensure components directory exists
       if (!fs.existsSync(componentsDir)) {
         fs.mkdirSync(componentsDir, { recursive: true });
         console.log(`  📁 Created: ${componentsDir}`);
@@ -202,9 +239,8 @@ program
       const componentName = capitalize(component);
 
       if (stack === 'angular') {
-        // Angular has separate .ts and .html files
-        const template = getTemplate(component, stack, isTypeScript);
-        if (template && template.ts && template.html) {
+        const template = getTemplate(component, stack, isTypeScript) as AngularTemplate | null;
+        if (template && 'ts' in template && 'html' in template) {
           const tsPath = path.join(componentsDir, `${component}.component.ts`);
           const htmlPath = path.join(componentsDir, `${component}.component.html`);
 
@@ -225,8 +261,7 @@ program
           console.log(`  ℹ️  No Angular template for ${component}. CSS only.`);
         }
       } else {
-        // React, Vue, Svelte
-        const template = getTemplate(component, stack, isTypeScript);
+        const template = getTemplate(component, stack, isTypeScript) as string | null;
         if (template) {
           const fileName = `${componentName}.${ext}`;
           const filePath = path.join(componentsDir, fileName);
@@ -252,15 +287,15 @@ program
     } else if (stack === 'svelte' || stack === 'sveltekit') {
       console.log(`  import ${capitalize(component)} from "${componentsDir}/${capitalize(component)}.svelte";`);
     } else if (stack === 'angular') {
-      console.log(`  <ui-${component}><\/ui-${component}>`);
+      console.log(`  <ui-${component}></ui-${component}>`);
     } else {
       console.log(`  <div class="ui-${component}">...</div>`);
     }
     console.log('');
   });
 
-function getExtension(stack, isTypeScript) {
-  const extensions = {
+function getExtension(stack: string, isTypeScript: boolean): string {
+  const extensions: Record<string, string> = {
     react: isTypeScript ? 'tsx' : 'jsx',
     nextjs: isTypeScript ? 'tsx' : 'jsx',
     vue: 'vue',
@@ -271,7 +306,7 @@ function getExtension(stack, isTypeScript) {
     astro: 'astro',
     html: 'html',
   };
-  return extensions[stack] || (isTypeScript ? 'tsx' : 'jsx');
+  return extensions[stack] ?? (isTypeScript ? 'tsx' : 'jsx');
 }
 
 // ─── LIST ──────────────────────────────────────────────────────
@@ -290,7 +325,7 @@ program
 
     console.log('\n  📦 TailUI Components\n');
     console.log(`  Stack: ${config.stack || 'not set'}`);
-    console.log(`  Directory: ${config.stylesDir || 'unknown'}`);
+    console.log(`  Directory: ${config.directory || 'not set'}`);
     console.log(`  Components dir: ${config.componentsDir || 'not set'}`);
     console.log(`  AI: ${config.ai?.provider || 'not configured'}\n`);
 
@@ -314,10 +349,9 @@ program
   .description('Initialize TailUI in the current project')
   .option('-d, --dir <name>', 'Directory name (skip prompt)')
   .option('-s, --stack <stack>', 'Framework stack (skip prompt)')
-  .action(async (options) => {
+  .action(async (options: { dir?: string; stack?: string }) => {
     const configPath = path.join(process.cwd(), CONFIG_FILE);
 
-    // Check if already initialized
     if (fs.existsSync(configPath)) {
       const existing = loadConfig();
       if (existing) {
@@ -332,8 +366,8 @@ program
     console.log('\n  🎨 TailUI Setup\n');
 
     // ── Step 1: Stack ──
-    let stack;
-    if (options.stack && STACKS.includes(options.stack)) {
+    let stack: string;
+    if (options.stack && STACKS.includes(options.stack as Stack)) {
       stack = options.stack;
     } else {
       console.log('  What is your project stack?\n');
@@ -353,7 +387,7 @@ program
     console.log(`  → Stack: ${stack}\n`);
 
     // ── Step 2: Styles directory ──
-    let dirName;
+    let dirName: string;
     if (options.dir) {
       dirName = options.dir;
     } else {
@@ -365,7 +399,6 @@ program
     dirName = dirName.replace(/[^a-zA-Z0-9_\-./]/g, '').trim() || DEFAULT_DIR;
     const stylesDir = `./${dirName}/styles`;
 
-    // Security: ensure stylesDir stays within the project
     const resolvedStylesDir = path.resolve(process.cwd(), stylesDir);
     if (!resolvedStylesDir.startsWith(process.cwd())) {
       console.error(`  ❌ Styles directory must be within the project.`);
@@ -381,7 +414,6 @@ program
     );
     componentsDir = componentsDir.replace(/[^a-zA-Z0-9_\-./]/g, '').trim() || defaultComponentsDir;
 
-    // Security: ensure componentsDir stays within the project
     const resolvedComponentsDir = path.resolve(process.cwd(), componentsDir);
     if (!resolvedComponentsDir.startsWith(process.cwd())) {
       console.error(`  ❌ Components directory must be within the project.`);
@@ -390,12 +422,9 @@ program
     console.log(`  → Components: ${componentsDir}\n`);
 
     // ── Step 4: AI configuration (optional) ──
-    const configureAI = await askQuestion(
-      '  Configure AI for component generation? (y/N)',
-      'n'
-    );
+    const configureAI = await askQuestion('  Configure AI for component generation? (y/N)', 'n');
 
-    let ai = null;
+    let ai: AIConfig | null = null;
     if (configureAI.toLowerCase() === 'y') {
       console.log('\n  Choose your AI provider:\n');
       AI_PROVIDERS.forEach((p, i) => console.log(`    ${i + 1}. ${p}`));
@@ -403,7 +432,7 @@ program
 
       const providerChoice = await askQuestion('  Enter number (1)', '1');
       const pIdx = parseInt(providerChoice, 10);
-      const provider = (pIdx >= 1 && pIdx <= AI_PROVIDERS.length)
+      const provider: AIProvider = (pIdx >= 1 && pIdx <= AI_PROVIDERS.length)
         ? AI_PROVIDERS[pIdx - 1]
         : AI_PROVIDERS[0];
 
@@ -440,7 +469,6 @@ program
       console.log(`  📁 Created: ${componentsDir}`);
     }
 
-    // Create index.css
     const indexPath = path.join(stylesDir, 'index.css');
     if (!fs.existsSync(indexPath)) {
       fs.writeFileSync(indexPath, `/* TailUI — Component Styles Entry Point */\n`);
@@ -448,20 +476,19 @@ program
     }
 
     // ── Create config ──
-    const config = {
+    const config: TailUIConfig = {
       version: '1.0.0',
-      stack,
+      stack: stack as Stack,
       directory: dirName,
       stylesDir,
       componentsDir,
-      ai: ai || undefined,
+      ...(ai ? { ai } : {}),
       components: {},
       variables: {},
     };
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
     console.log(`  📄 Created: ${CONFIG_FILE}`);
 
-    // Protect API key: add ui.config.json to .gitignore if AI is configured
     if (ai) {
       const gitignorePath = path.join(process.cwd(), '.gitignore');
       if (fs.existsSync(gitignorePath)) {
@@ -504,7 +531,7 @@ program
   .command('generate <component>')
   .description('Generate a framework component with AI using TailUI styles')
   .option('-s, --stack <stack>', 'Override stack from config')
-  .action(async (component, options) => {
+  .action(async (component: string, options: { stack?: string }) => {
     if (!COMPONENT_NAME_RE.test(component)) {
       console.error(`  ❌ Invalid component name "${component}". Use lowercase letters, numbers, and hyphens.`);
       process.exit(1);
@@ -517,7 +544,7 @@ program
       process.exit(1);
     }
 
-    if (!config.ai || !config.ai.apiKey) {
+    if (!config.ai?.apiKey) {
       console.log('  ❌ AI not configured. Run: npx tailui init');
       console.log('  Or add manually to ui.config.json:');
       console.log('    "ai": { "provider": "openai", "apiKey": "sk-..." }');
@@ -529,9 +556,8 @@ program
     const apiKey = config.ai.apiKey;
     const componentsDir = config.componentsDir || './src/components/ui';
     const stylesDir = config.stylesDir || './ui/styles';
-    const ext = STACK_EXTENSIONS[stack] || 'tsx';
+    const ext = STACK_EXTENSIONS[stack as Stack] || 'tsx';
 
-    // Read the CSS file if it exists
     const cssPath = path.join(stylesDir, `ui.${component}.css`);
     let cssContent = '';
     if (fs.existsSync(cssPath)) {
@@ -546,7 +572,6 @@ program
     try {
       const code = await callAI(provider, apiKey, prompt);
 
-      // Ensure output directory exists
       if (!fs.existsSync(componentsDir)) {
         fs.mkdirSync(componentsDir, { recursive: true });
       }
@@ -554,7 +579,6 @@ program
       const fileName = `${capitalize(component)}.${ext}`;
       const filePath = path.join(componentsDir, fileName);
 
-      // Check if file already exists
       if (fs.existsSync(filePath)) {
         const overwrite = await askQuestion(
           `  ⚠️  ${fileName} already exists. Overwrite? (y/N)`,
@@ -571,7 +595,7 @@ program
       console.log(`\n  The component uses TailUI .ui-* classes from your styles.`);
       console.log(`  Import it in your project and start using it!\n`);
     } catch (err) {
-      console.error(`  ❌ AI generation failed: ${err.message}`);
+      console.error(`  ❌ AI generation failed: ${(err as Error).message}`);
       console.error('  Check your API key and network connection.\n');
       process.exit(1);
     }
@@ -584,7 +608,7 @@ program
   .option('--set-ai <provider>', 'Set AI provider (openai, claude, gemini, mistral)')
   .option('--set-key <key>', 'Set AI API key')
   .option('--set-stack <stack>', 'Set project stack')
-  .action((options) => {
+  .action((options: { setAi?: string; setKey?: string; setStack?: string }) => {
     const config = loadConfig();
 
     if (!config) {
@@ -595,33 +619,32 @@ program
     let changed = false;
 
     if (options.setStack) {
-      if (!STACKS.includes(options.setStack)) {
+      if (!STACKS.includes(options.setStack as Stack)) {
         console.error(`  ❌ Invalid stack "${options.setStack}". Must be one of: ${STACKS.join(', ')}`);
         process.exit(1);
       }
-      config.stack = options.setStack;
+      config.stack = options.setStack as Stack;
       changed = true;
       console.log(`  ✅ Stack set to: ${options.setStack}`);
     }
 
     if (options.setAi) {
-      if (!AI_PROVIDERS.includes(options.setAi)) {
+      if (!AI_PROVIDERS.includes(options.setAi as AIProvider)) {
         console.error(`  ❌ Invalid AI provider "${options.setAi}". Must be one of: ${AI_PROVIDERS.join(', ')}`);
         process.exit(1);
       }
-      if (!config.ai) config.ai = {};
-      config.ai.provider = options.setAi;
+      if (!config.ai) config.ai = { provider: options.setAi as AIProvider, apiKey: '' };
+      config.ai.provider = options.setAi as AIProvider;
       changed = true;
       console.log(`  ✅ AI provider set to: ${options.setAi}`);
     }
 
     if (options.setKey) {
-      if (!config.ai) config.ai = {};
+      if (!config.ai) config.ai = { provider: 'openai', apiKey: '' };
       config.ai.apiKey = options.setKey;
       changed = true;
       console.log(`  ✅ AI API key updated`);
 
-      // Protect API key in .gitignore
       const gitignorePath = path.join(process.cwd(), '.gitignore');
       if (fs.existsSync(gitignorePath)) {
         const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
@@ -636,7 +659,6 @@ program
       saveConfig(config);
       console.log(`  📝 Saved: ${CONFIG_FILE}\n`);
     } else {
-      // Display current config
       console.log('\n  ⚙️  TailUI Configuration\n');
       console.log(`  Stack:          ${config.stack || 'not set'}`);
       console.log(`  Directory:      ${config.directory || 'not set'}`);
@@ -659,15 +681,21 @@ program
   .option('--force', 'Apply all migrations without confirmation')
   .option('--threshold <number>', 'Minimum confidence score (0–100, default 60)', '60')
   .option('--undo', 'Restore files from the most recent backup')
-  .action(async (target, options) => {
-    const { migrate } = require('../migrate');
+  .action(async (target: string | undefined, options: {
+    file?: string;
+    all?: boolean;
+    dryRun?: boolean;
+    interactive?: boolean;
+    force?: boolean;
+    threshold?: string;
+    undo?: boolean;
+  }) => {
+    const { migrate } = require('../migrate') as { migrate: (opts: MigrateOptions) => Promise<void> };
 
-    // Handle --undo (no target needed)
     if (options.undo) {
       return migrate({ undo: true });
     }
 
-    // Resolve target from -f or positional argument
     const resolvedTarget = options.file || target;
 
     if (!resolvedTarget) {
@@ -687,16 +715,15 @@ program
       process.exit(1);
     }
 
-    const threshold = parseInt(options.threshold, 10);
+    const threshold = parseInt(options.threshold ?? '60', 10);
     if (isNaN(threshold) || threshold < 0 || threshold > 100) {
       console.error('  ❌ Threshold must be a number between 0 and 100.');
       process.exit(1);
     }
 
-    // Load AI config if available
-    let aiConfig = null;
+    let aiConfig: AIConfig | null = null;
     const config = loadConfig();
-    if (config && config.ai && config.ai.apiKey) {
+    if (config?.ai?.apiKey) {
       aiConfig = config.ai;
     }
 
@@ -715,16 +742,13 @@ program
 
 // ─── AI HELPERS ─────────────────────────────────────────────────
 
-function buildPrompt(component, stack, cssContent, config = {}) {
+function buildPrompt(component: string, stack: string, cssContent: string, config: TailUIConfig = {}): string {
   const componentName = capitalize(component);
-  let cssContext = '';
-  if (cssContent) {
-    cssContext = `\nHere are the existing TailUI CSS styles for this component:\n\`\`\`css\n${cssContent}\n\`\`\`\nUse the .ui-* classes defined above.`;
-  } else {
-    cssContext = `\nUse TailUI .ui-${component} classes (e.g. class="ui-${component} ui-primary").`;
-  }
 
-  // Enrich with tokens (variants) from config
+  const cssContext = cssContent
+    ? `\nHere are the existing TailUI CSS styles for this component:\n\`\`\`css\n${cssContent}\n\`\`\`\nUse the .ui-* classes defined above.`
+    : `\nUse TailUI .ui-${component} classes (e.g. class="ui-${component} ui-primary").`;
+
   let tokensContext = '';
   const tokens = config.components?.[component];
   if (Array.isArray(tokens) && tokens.length > 0) {
@@ -732,11 +756,9 @@ function buildPrompt(component, stack, cssContent, config = {}) {
     tokensContext += `\nExpose these as typed props (e.g. variant, size, state).`;
   }
 
-  // Enrich with slots from config
   let slotsContext = '';
   const slots = config.slots;
   if (Array.isArray(slots) && slots.length > 0) {
-    // Extract slots actually used in the CSS
     const usedSlots = cssContent
       ? slots.filter(s => cssContent.includes(`.ui-${s}`))
       : [];
@@ -746,7 +768,6 @@ function buildPrompt(component, stack, cssContent, config = {}) {
     }
   }
 
-  // Enrich with CSS variables from config
   let varsContext = '';
   const vars = config.variables?.[component];
   if (Array.isArray(vars) && vars.length > 0) {
@@ -754,7 +775,7 @@ function buildPrompt(component, stack, cssContent, config = {}) {
     varsContext += `\nExpose these as optional style props.`;
   }
 
-  const stackInstructions = {
+  const stackInstructions: Record<string, string> = {
     react: `Create a React (TSX) functional component named ${componentName}. Use TypeScript with proper props interface. Export as default.`,
     nextjs: `Create a Next.js (TSX) component named ${componentName}. Add "use client" if needed. Use TypeScript with proper props interface. Export as default.`,
     vue: `Create a Vue 3 SFC (.vue) component named ${componentName}. Use <script setup lang="ts"> with defineProps.`,
@@ -766,7 +787,7 @@ function buildPrompt(component, stack, cssContent, config = {}) {
     html: `Create a pure HTML snippet for the ${componentName} component with example usage.`,
   };
 
-  const instruction = stackInstructions[stack] || stackInstructions.react;
+  const instruction = stackInstructions[stack] ?? stackInstructions.react;
 
   return `You are a senior frontend developer. Generate a production-ready UI component.
 
@@ -784,14 +805,16 @@ Requirements:
 Component: ${componentName}`;
 }
 
-function callAI(provider, apiKey, prompt) {
+function callAI(provider: AIProvider, apiKey: string, prompt: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const endpoint = AI_ENDPOINTS[provider];
     if (!endpoint) {
       return reject(new Error(`Unknown AI provider: ${provider}`));
     }
 
-    let body, headers, requestUrl = endpoint.url;
+    let body: string;
+    let headers: Record<string, string>;
+    let requestUrl = endpoint.url;
 
     if (provider === 'claude') {
       body = JSON.stringify({
@@ -809,10 +832,8 @@ function callAI(provider, apiKey, prompt) {
         contents: [{ parts: [{ text: prompt }] }],
       });
       headers = { 'Content-Type': 'application/json' };
-      // Gemini uses query param for key — use local var to avoid mutating the constant
       requestUrl = `${endpoint.url}?key=${apiKey}`;
     } else {
-      // OpenAI / Mistral compatible
       body = JSON.stringify({
         model: endpoint.model,
         messages: [{ role: 'user', content: prompt }],
@@ -826,19 +847,18 @@ function callAI(provider, apiKey, prompt) {
     }
 
     const url = new URL(requestUrl);
-    const options = {
+    const reqOptions: https.RequestOptions = {
       hostname: url.hostname,
       path: url.pathname + url.search,
       method: 'POST',
       headers,
     };
 
-    const req = https.request(options, (res) => {
+    const req = https.request(reqOptions, (res) => {
       let data = '';
-      res.on('data', chunk => data += chunk);
+      res.on('data', (chunk: Buffer) => data += chunk);
       res.on('end', () => {
-        // Check HTTP status before parsing
-        if (res.statusCode >= 400) {
+        if ((res.statusCode ?? 0) >= 400) {
           const hint = res.statusCode === 401 ? ' (invalid API key?)'
             : res.statusCode === 429 ? ' (rate limited — try again later)'
             : res.statusCode === 403 ? ' (forbidden — check API key permissions)'
@@ -847,26 +867,27 @@ function callAI(provider, apiKey, prompt) {
         }
 
         try {
-          const json = JSON.parse(data);
+          const json = JSON.parse(data) as Record<string, unknown>;
 
-          let content;
+          let content: string | undefined;
           if (provider === 'claude') {
-            content = json.content?.[0]?.text;
+            content = (json.content as Array<{ text: string }>)?.[0]?.text;
           } else if (provider === 'gemini') {
-            content = json.candidates?.[0]?.content?.parts?.[0]?.text;
+            content = (json as { candidates?: Array<{ content?: { parts?: Array<{ text: string }> } }> })
+              .candidates?.[0]?.content?.parts?.[0]?.text;
           } else {
-            content = json.choices?.[0]?.message?.content;
+            content = (json as { choices?: Array<{ message?: { content: string } }> })
+              .choices?.[0]?.message?.content;
           }
 
           if (!content) {
             return reject(new Error(`Empty response from ${provider}: ${data.substring(0, 200)}`));
           }
 
-          // Extract code from markdown code blocks if present
           const codeMatch = content.match(/```(?:\w+)?\n([\s\S]*?)```/);
           resolve(codeMatch ? codeMatch[1].trim() : content.trim());
         } catch (e) {
-          reject(new Error(`Failed to parse ${provider} response: ${e.message}`));
+          reject(new Error(`Failed to parse ${provider} response: ${(e as Error).message}`));
         }
       });
     });
@@ -879,21 +900,21 @@ function callAI(provider, apiKey, prompt) {
 
 // ─── HELPERS ───────────────────────────────────────────────────
 
-function askQuestion(prompt, defaultValue) {
+function askQuestion(prompt: string, defaultValue: string): Promise<string> {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
   return new Promise((resolve) => {
-    rl.question(`${prompt} `, (answer) => {
+    rl.question(`${prompt} `, (answer: string) => {
       rl.close();
       resolve(answer.trim() || defaultValue);
     });
   });
 }
 
-function generateTemplate(component, variants) {
+function generateTemplate(component: string, variants: string[]): string {
   let css = `@layer components {\n`;
   css += `  /* Base */\n`;
   css += `  .ui-${component} {\n`;
@@ -911,17 +932,15 @@ function generateTemplate(component, variants) {
   return css;
 }
 
-function updateConfig(component, tokens) {
-  let config = loadConfig() || {};
-
+function updateConfig(component: string, tokens: string[]): void {
+  const config = loadConfig() ?? {};
   if (!config.components) config.components = {};
   config.components[component] = tokens;
-
   saveConfig(config);
   console.log(`  📝 Updated: ${CONFIG_FILE}`);
 }
 
-function updateIndex(dir, component) {
+function updateIndex(dir: string, component: string): void {
   const indexPath = path.join(dir, 'index.css');
   const importLine = `@import "./ui.${component}.css";`;
 
@@ -934,7 +953,7 @@ function updateIndex(dir, component) {
   }
 }
 
-function capitalize(str) {
+function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 

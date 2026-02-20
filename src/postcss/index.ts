@@ -1,32 +1,32 @@
-const fs = require('fs');
-const path = require('path');
-const postcss = require('postcss');
-const { resolveConfig } = require('../config');
+import fs from 'fs';
+import path from 'path';
+import postcss, { PluginCreator, Root, AtRule } from 'postcss';
+import { resolveConfig, PluginOptions } from '../config';
 
 /**
  * TailUI PostCSS Plugin (Zero-Config)
- * 
+ *
  * Two jobs:
  * 1. Auto-injects all ui.*.css component styles before @tailwind components
  *    so the dev never has to manage CSS import order manually.
  * 2. Processes @style { ... } blocks in ui.*.css files.
- * 
+ *
  * Resolves the styles directory from ui.config.json automatically.
  * The dev's CSS file just needs:
  *   @tailwind base;
  *   @tailwind components;
  *   @tailwind utilities;
- * 
+ *
  * Usage in postcss.config.js:
  *   plugins: { '@tailuicss/core/postcss': {}, tailwindcss: {} }
  */
-module.exports = (options = {}) => {
+const plugin: PluginCreator<PluginOptions> = (options: PluginOptions = {}) => {
   const { stylesDir } = resolveConfig(options);
 
   return {
     postcssPlugin: 'tailui',
 
-    Once(root) {
+    Once(root: Root) {
       const fullPath = path.resolve(process.cwd(), stylesDir);
 
       if (!fs.existsSync(fullPath)) {
@@ -41,11 +41,9 @@ module.exports = (options = {}) => {
       if (files.length === 0) return;
 
       // Read and concatenate all CSS content
-      let allCSS = '';
-      files.forEach(file => {
-        const content = fs.readFileSync(path.join(fullPath, file), 'utf8');
-        allCSS += content + '\n';
-      });
+      let allCSS = files
+        .map(file => fs.readFileSync(path.join(fullPath, file), 'utf8'))
+        .join('\n');
 
       // Process @style blocks before parsing (supports nested braces)
       allCSS = processStyleBlocks(allCSS);
@@ -54,7 +52,7 @@ module.exports = (options = {}) => {
       const parsed = postcss.parse(allCSS);
 
       // Find @tailwind components directive
-      let componentsRule = null;
+      let componentsRule: AtRule | null = null;
       root.walkAtRules('tailwind', (atRule) => {
         if (atRule.params === 'components') {
           componentsRule = atRule;
@@ -64,7 +62,7 @@ module.exports = (options = {}) => {
       if (componentsRule) {
         // Insert all parsed nodes before @tailwind components
         parsed.nodes.slice().reverse().forEach(node => {
-          componentsRule.before(node.clone());
+          (componentsRule as AtRule).before(node.clone());
         });
         console.log(`[TailUI] ✅ Injected ${files.length} component(s): ${files.map(f => f.replace('ui.', '').replace('.css', '')).join(', ')}`);
       } else {
@@ -75,13 +73,15 @@ module.exports = (options = {}) => {
   };
 };
 
-module.exports.postcss = true;
+plugin.postcss = true;
+
+export default plugin;
 
 /**
  * Process @style { ... } blocks, supporting nested braces.
  * Extracts the inner content and replaces the @style wrapper.
  */
-function processStyleBlocks(css) {
+function processStyleBlocks(css: string): string {
   let result = '';
   let i = 0;
 
@@ -95,7 +95,7 @@ function processStyleBlocks(css) {
     result += css.slice(i, idx);
 
     // Find the opening brace
-    let braceStart = css.indexOf('{', idx);
+    const braceStart = css.indexOf('{', idx);
     if (braceStart === -1) {
       result += css.slice(idx);
       break;

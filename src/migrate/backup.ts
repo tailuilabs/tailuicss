@@ -1,24 +1,35 @@
-/**
- * TailUI Migration — Backup & Undo System
- *
- * Creates timestamped backups of files before migration
- * and supports restoring them via --undo.
- */
+import fs from 'fs';
+import path from 'path';
 
-const fs = require('fs');
-const path = require('path');
+export const BACKUP_ROOT = '.tailui-backup';
 
-const BACKUP_ROOT = '.tailui-backup';
+interface Manifest {
+  timestamp: string;
+  date: string;
+  files: string[];
+  projectRoot: string;
+}
+
+interface RestoreResult {
+  restored: number;
+  backupDir: string;
+}
+
+interface BackupEntry {
+  timestamp: string;
+  date: string;
+  fileCount: number;
+}
 
 /**
  * Create a backup of files before migration.
  * Stores them in .tailui-backup/<timestamp>/ preserving relative paths.
  *
- * @param {string[]} filePaths - Absolute paths of files to back up
- * @param {string} projectRoot - Project root directory
- * @returns {string} - The backup directory path
+ * @param filePaths - Absolute paths of files to back up
+ * @param projectRoot - Project root directory
+ * @returns The backup directory path
  */
-function createBackup(filePaths, projectRoot) {
+export function createBackup(filePaths: string[], projectRoot: string): string {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
   const backupDir = path.join(projectRoot, BACKUP_ROOT, timestamp);
 
@@ -26,18 +37,15 @@ function createBackup(filePaths, projectRoot) {
     const relativePath = path.relative(projectRoot, filePath);
     const backupPath = path.join(backupDir, relativePath);
 
-    // Ensure backup subdirectory exists
     const backupSubDir = path.dirname(backupPath);
     if (!fs.existsSync(backupSubDir)) {
       fs.mkdirSync(backupSubDir, { recursive: true });
     }
 
-    // Copy file
     fs.copyFileSync(filePath, backupPath);
   }
 
-  // Write a manifest file
-  const manifest = {
+  const manifest: Manifest = {
     timestamp,
     date: new Date().toISOString(),
     files: filePaths.map(f => path.relative(projectRoot, f)),
@@ -55,26 +63,21 @@ function createBackup(filePaths, projectRoot) {
 /**
  * Restore files from the most recent backup.
  *
- * @param {string} projectRoot - Project root directory
- * @param {string} [backupTimestamp] - Specific backup to restore (optional, defaults to latest)
- * @returns {{ restored: number, backupDir: string }|null}
+ * @param projectRoot - Project root directory
+ * @param backupTimestamp - Specific backup to restore (optional, defaults to latest)
+ * @returns Restore result or null if no backup found
  */
-function restoreBackup(projectRoot, backupTimestamp) {
+export function restoreBackup(projectRoot: string, backupTimestamp?: string): RestoreResult | null {
   const backupRoot = path.join(projectRoot, BACKUP_ROOT);
 
-  if (!fs.existsSync(backupRoot)) {
-    return null;
-  }
+  if (!fs.existsSync(backupRoot)) return null;
 
-  let targetDir;
+  let targetDir: string;
 
   if (backupTimestamp) {
     targetDir = path.join(backupRoot, backupTimestamp);
-    if (!fs.existsSync(targetDir)) {
-      return null;
-    }
+    if (!fs.existsSync(targetDir)) return null;
   } else {
-    // Find the most recent backup
     const backups = fs.readdirSync(backupRoot)
       .filter(d => {
         const fullPath = path.join(backupRoot, d);
@@ -87,14 +90,13 @@ function restoreBackup(projectRoot, backupTimestamp) {
     targetDir = path.join(backupRoot, backups[0]);
   }
 
-  // Read manifest
   const manifestPath = path.join(targetDir, '.manifest.json');
   if (!fs.existsSync(manifestPath)) return null;
 
-  let manifest;
+  let manifest: Manifest;
   try {
-    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  } catch (e) {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Manifest;
+  } catch {
     return null;
   }
 
@@ -105,7 +107,6 @@ function restoreBackup(projectRoot, backupTimestamp) {
     const originalFile = path.join(projectRoot, relativePath);
 
     if (fs.existsSync(backupFile)) {
-      // Ensure target directory exists
       const targetSubDir = path.dirname(originalFile);
       if (!fs.existsSync(targetSubDir)) {
         fs.mkdirSync(targetSubDir, { recursive: true });
@@ -122,40 +123,36 @@ function restoreBackup(projectRoot, backupTimestamp) {
 /**
  * List all available backups.
  *
- * @param {string} projectRoot
- * @returns {Array<{ timestamp: string, date: string, fileCount: number }>}
+ * @param projectRoot - Project root directory
+ * @returns Array of backup entries
  */
-function listBackups(projectRoot) {
+export function listBackups(projectRoot: string): BackupEntry[] {
   const backupRoot = path.join(projectRoot, BACKUP_ROOT);
 
   if (!fs.existsSync(backupRoot)) return [];
 
-  const backups = [];
   const dirs = fs.readdirSync(backupRoot)
-    .filter(d => {
-      const fullPath = path.join(backupRoot, d);
-      return fs.statSync(fullPath).isDirectory();
-    })
+    .filter(d => fs.statSync(path.join(backupRoot, d)).isDirectory())
     .sort()
     .reverse();
 
+  const backups: BackupEntry[] = [];
+
   for (const dir of dirs) {
     const manifestPath = path.join(backupRoot, dir, '.manifest.json');
-    if (fs.existsSync(manifestPath)) {
-      try {
-        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-        backups.push({
-          timestamp: dir,
-          date: manifest.date,
-          fileCount: manifest.files.length,
-        });
-      } catch (e) {
-        // Skip corrupt manifests
-      }
+    if (!fs.existsSync(manifestPath)) continue;
+
+    try {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Manifest;
+      backups.push({
+        timestamp: dir,
+        date: manifest.date,
+        fileCount: manifest.files.length,
+      });
+    } catch {
+      // Skip corrupt manifests
     }
   }
 
   return backups;
 }
-
-module.exports = { createBackup, restoreBackup, listBackups, BACKUP_ROOT };

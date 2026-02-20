@@ -1,11 +1,17 @@
 /**
  * TailUI Component Templates
- * 
- * Templates for generating framework-specific components.
+ * * Templates for generating framework-specific components.
  * Each template uses TailUI .ui-* CSS classes.
  */
 
-const COMPONENTS = {
+interface ComponentMeta {
+  variants?: string[];
+  sizes?: string[];
+  props?: string[];
+  slots?: string[];
+}
+
+export const COMPONENTS: Record<string, ComponentMeta> = {
   button: {
     variants: ['primary', 'secondary', 'danger', 'ghost', 'outline'],
     sizes: ['sm', 'lg', 'xl'],
@@ -39,8 +45,8 @@ const COMPONENTS = {
     props: ['trigger', 'items', 'align'],
   },
   select: {
-    variants: ['error', 'success', 'disabled'],
     props: ['options', 'value', 'onChange', 'placeholder', 'disabled'],
+    variants: ['error', 'success', 'disabled'],
   },
   textarea: {
     variants: ['error', 'success', 'disabled'],
@@ -91,7 +97,7 @@ const COMPONENTS = {
 
 // ─── React/Next.js Templates ────────────────────────────────────
 
-function reactButton(ts = true) {
+function reactButton(ts: boolean = true): string {
   if (ts) {
     return `import React from "react";
 
@@ -167,7 +173,7 @@ export function Button({
 `;
 }
 
-function reactCard(ts = true) {
+function reactCard(ts: boolean = true): string {
   if (ts) {
     return `import React from "react";
 
@@ -282,7 +288,7 @@ export function CardFooter({ className = "", children }) {
 `;
 }
 
-function reactInput(ts = true) {
+function reactInput(ts: boolean = true): string {
   if (ts) {
     return `import React from "react";
 
@@ -341,7 +347,7 @@ export function Input({
 `;
 }
 
-function reactBadge(ts = true) {
+function reactBadge(ts: boolean = true): string {
   if (ts) {
     return `import React from "react";
 
@@ -393,7 +399,7 @@ export function Badge({
 `;
 }
 
-function reactAlert(ts = true) {
+function reactAlert(ts: boolean = true): string {
   if (ts) {
     return `import React, { useState } from "react";
 
@@ -474,7 +480,7 @@ export function Alert({
 `;
 }
 
-function reactToggle(ts = true) {
+function reactToggle(ts: boolean = true): string {
   if (ts) {
     return `import React from "react";
 
@@ -564,7 +570,7 @@ export function Toggle({
 
 // ─── Vue Templates ──────────────────────────────────────────────
 
-function vueButton() {
+function vueButton(): string {
   return `<template>
   <button :class="classes" :disabled="disabled || loading" v-bind="$attrs">
     <span v-if="loading" class="ui-spinner" />
@@ -600,7 +606,7 @@ const classes = computed(() => [
 `;
 }
 
-function vueCard() {
+function vueCard(): string {
   return `<template>
   <div :class="classes" @click="$emit('click')">
     <slot />
@@ -636,7 +642,7 @@ const classes = computed(() => [
 
 // ─── Svelte Templates ───────────────────────────────────────────
 
-function svelteButton() {
+function svelteButton(): string {
   return `<script lang="ts">
   export let variant: "primary" | "secondary" | "danger" | "ghost" | "outline" = "primary";
   export let size: "sm" | "lg" | "xl" | undefined = undefined;
@@ -663,7 +669,7 @@ function svelteButton() {
 `;
 }
 
-function svelteCard() {
+function svelteCard(): string {
   return `<script lang="ts">
   export let variant: "elevated" | "outlined" | "flat" | undefined = undefined;
   export let hoverable = false;
@@ -687,7 +693,7 @@ function svelteCard() {
 
 // ─── Angular Templates ──────────────────────────────────────────
 
-function angularButtonTS() {
+function angularButtonTS(): string {
   return `import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -718,7 +724,7 @@ export class ButtonComponent {
 `;
 }
 
-function angularButtonHTML() {
+function angularButtonHTML(): string {
   return `<button [class]="classes" [disabled]="disabled || loading">
   <span *ngIf="loading" class="ui-spinner"></span>
   <ng-content></ng-content>
@@ -726,7 +732,7 @@ function angularButtonHTML() {
 `;
 }
 
-function angularCardTS() {
+function angularCardTS(): string {
   return `import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -756,7 +762,7 @@ export class CardComponent {
 `;
 }
 
-function angularCardHTML() {
+function angularCardHTML(): string {
   return `<div [class]="classes" (click)="cardClick.emit()">
   <ng-content></ng-content>
 </div>
@@ -765,7 +771,14 @@ function angularCardHTML() {
 
 // ─── Template Registry ──────────────────────────────────────────
 
-const TEMPLATES = {
+type TemplateFn = (isTypeScript?: boolean) => string;
+type AngularTemplate = { ts: () => string; html: () => string };
+
+interface StackTemplates {
+  [component: string]: TemplateFn | AngularTemplate | undefined;
+}
+
+export const TEMPLATES: Record<string, StackTemplates> = {
   react: {
     button: reactButton,
     card: reactCard,
@@ -788,7 +801,7 @@ const TEMPLATES = {
   },
 };
 
-function getTemplate(component, stack, isTypeScript = true) {
+export function getTemplate(component: string, stack: string, isTypeScript: boolean = true): string | AngularTemplate | null {
   const stackTemplates = TEMPLATES[stack] || TEMPLATES.react;
   const template = stackTemplates[component];
   
@@ -797,34 +810,25 @@ function getTemplate(component, stack, isTypeScript = true) {
   }
 
   if (stack === 'angular') {
-    return template;
+    return template as AngularTemplate;
   }
 
   if (typeof template === 'function') {
-    return template(isTypeScript);
+    return (template as TemplateFn)(isTypeScript);
   }
 
-  return template;
+  return template as unknown as string;
 }
 
-function getAvailableComponents() {
+export function getAvailableComponents(): string[] {
   return Object.keys(COMPONENTS);
 }
 
-function getComponentInfo(component) {
+export function getComponentInfo(component: string): ComponentMeta | null {
   return COMPONENTS[component] || null;
 }
 
-function hasTemplate(component, stack) {
+export function hasTemplate(component: string, stack: string): boolean {
   const stackTemplates = TEMPLATES[stack] || TEMPLATES.react;
   return !!stackTemplates[component];
 }
-
-module.exports = {
-  COMPONENTS,
-  TEMPLATES,
-  getTemplate,
-  getAvailableComponents,
-  getComponentInfo,
-  hasTemplate,
-};

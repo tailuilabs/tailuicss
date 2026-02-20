@@ -2,24 +2,37 @@
   "name": "tailuicss",
   "version": "1.0.4",
   "description": "A semantic CSS-first layer on top of Tailwind CSS. Write class=\"ui-button ui-primary\" instead of 40 utility classes.",
-  "main": "src/plugin/index.js",
-  "types": "src/plugin/index.d.ts",
+  "type": "module",
+  "main": "./dist/plugin/index.js",
+  "module": "./dist/plugin/index.mjs",
+  "types": "./dist/plugin/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/plugin/index.d.ts",
-      "default": "./src/plugin/index.js"
+      "types": "./dist/plugin/index.d.ts",
+      "import": "./dist/plugin/index.js",
+      "require": "./dist/plugin/index.cjs"
     },
     "./postcss": {
-      "types": "./postcss.d.ts",
-      "default": "./postcss.js"
+      "types": "./dist/postcss/index.d.ts",
+      "import": "./dist/postcss/index.js",
+      "require": "./dist/postcss/index.cjs"
     },
-    "./cli": "./src/cli/index.js"
+    "./templates": {
+      "types": "./dist/templates/index.d.ts",
+      "import": "./dist/templates/index.js",
+      "require": "./dist/templates/index.cjs"
+    },
+    "./cli": {
+      "types": "./dist/cli/index.d.ts",
+      "import": "./dist/cli/index.js",
+      "require": "./dist/cli/index.cjs"
+    }
   },
   "bin": {
-    "tailui": "./src/cli/index.js"
+    "tailui": "./dist/cli/index.js"
   },
   "files": [
-    "src/",
+    "dist/",
     "ui/",
     "postcss.js",
     "postcss.d.ts",
@@ -29,8 +42,12 @@
   ],
   "scripts": {
     "dev": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss --watch",
-    "build": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss",
-    "demo": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss && open demo/index.html"
+    "build": "tsup",
+    "dev:build": "tsup src/plugin/index.ts --format esm,cjs --dts --watch",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build",
+    "build:demo": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss",
+    "demo": "npx tailwindcss -i ./demo/src/input.css -o ./demo/dist/output.css --postcss && open demo/index.html",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "tailwindcss",
@@ -98,7 +115,10 @@
     "tailwindcss": "^3.4.0"
   },
   "devDependencies": {
+    "@types/node": "^25.3.0",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
   }
 }

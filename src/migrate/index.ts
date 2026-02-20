@@ -1,43 +1,72 @@
 /**
  * TailUI Migration — Orchestrator
  *
- * DEV-ONLY: This module is exclusively used by the CLI (`tailui migrate`).
- * It is lazy-loaded inside the command action handler and is NEVER imported
- * by the Tailwind plugin or PostCSS plugin. It adds zero weight to the
- * developer's production bundle.
- *
  * Coordinates scanning, matching, transforming, backup, and reporting.
  */
 
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+import * as fs from 'fs';
+import * as path from 'path';
+import * as readline from 'readline';
 
-const { scanFile, findFiles } = require('./scanner');
-const { findBestMatch } = require('./matcher');
-const { applyReplacements, writeFile } = require('./transformer');
-const { printReport, printFilePreview, printInteractiveItem } = require('./reporter');
-const { createBackup, restoreBackup, listBackups } = require('./backup');
+import { scanFile, findFiles } from './scanner';
+import { findBestMatch } from './matcher';
+import { applyReplacements, writeFile } from './transformer';
+import { printReport, printFilePreview, printInteractiveItem } from './reporter';
+import { createBackup, restoreBackup, listBackups } from './backup';
 
-/**
- * @typedef {Object} MigrateOptions
- * @property {string}  target       - File path or directory path
- * @property {boolean} all          - Whether to scan all files in directory
- * @property {boolean} dryRun       - Preview only, don't write
- * @property {boolean} interactive  - Ask for confirmation per match
- * @property {boolean} force        - Apply all without confirmation
- * @property {number}  threshold    - Minimum confidence score (0–100)
- * @property {boolean} undo         - Restore from backup
- * @property {boolean} ai           - Use AI for ambiguous matches
- * @property {Object}  aiConfig     - AI configuration from ui.config.json
- */
+// --- Types & Interfaces ---
+
+export interface MigrateOptions {
+  target: string;
+  all?: boolean;
+  dryRun?: boolean;
+  interactive?: boolean;
+  force?: boolean;
+  threshold?: number;
+  undo?: boolean;
+  ai?: boolean;
+  aiConfig?: Record<string, any>;
+}
+
+export interface Replacement {
+  file: string;
+  line: number;
+  original: string;
+  classString: string;
+  newClassString: string;
+  startIndex: number;
+  endIndex: number;
+  component: string;
+  uiClass: string;
+  uiVariants: string[];
+  score: number;
+}
+
+export interface SkippedMatch {
+  file: string;
+  line: number;
+  component: string;
+  uiClass: string;
+  score: number;
+}
+
+export interface MigrationStats {
+  filesScanned: number;
+  filesModified: number;
+  totalMigrations: number;
+  totalSkipped: number;
+  componentCounts: Record<string, number>;
+  skippedCounts: Record<string, number>;
+  unmatchedFiles: string[];
+  backupDir: string;
+}
+
+// --- Main Function ---
 
 /**
  * Run the migration process.
- *
- * @param {MigrateOptions} options
  */
-async function migrate(options) {
+export async function migrate(options: MigrateOptions): Promise<void> {
   const projectRoot = process.cwd();
 
   // ── Handle --undo ──
@@ -62,7 +91,7 @@ async function migrate(options) {
   }
 
   // ── Collect files ──
-  let files;
+  let files: string[];
   if (isDirectory) {
     files = findFiles(targetPath);
     if (files.length === 0) {
@@ -77,15 +106,15 @@ async function migrate(options) {
 
   // ── Scan & Match ──
   const threshold = options.threshold || 60;
-  const allReplacements = new Map(); // filePath -> Replacement[]
-  const allSkipped = [];
+  const allReplacements = new Map<string, Replacement[]>();
+  const allSkipped: SkippedMatch[] = [];
 
   let totalMatches = 0;
   let totalSkipped = 0;
 
   for (const file of files) {
     const classMatches = scanFile(file);
-    const fileReplacements = [];
+    const fileReplacements: Replacement[] = [];
 
     for (const classMatch of classMatches) {
       const match = findBestMatch(classMatch, threshold);
@@ -106,7 +135,6 @@ async function migrate(options) {
         });
         totalMatches++;
       } else {
-        // Check if there was a partial match (score > 0 but below threshold)
         const lowMatch = findBestMatch(classMatch, 1);
         if (lowMatch && lowMatch.score > 0) {
           allSkipped.push({
@@ -141,7 +169,6 @@ async function migrate(options) {
     for (const [filePath, replacements] of allReplacements) {
       printFilePreview(filePath, replacements);
     }
-
     printReport(buildStats(files, allReplacements, allSkipped, null), true);
     return;
   }
@@ -154,12 +181,10 @@ async function migrate(options) {
       return;
     }
 
-    // Backup
-    const filesToBackup = [...accepted.keys()];
+    const filesToBackup = Array.from(accepted.keys());
     const backupDir = createBackup(filesToBackup, projectRoot);
     console.log(`\n  💾 Backup created: ${path.relative(projectRoot, backupDir)}`);
 
-    // Apply
     for (const [filePath, replacements] of accepted) {
       const newContent = applyReplacements(filePath, replacements);
       writeFile(filePath, newContent);
@@ -171,12 +196,10 @@ async function migrate(options) {
   }
 
   // ── Force / Default mode ──
-  // Backup first
-  const filesToBackup = [...allReplacements.keys()];
+  const filesToBackup = Array.from(allReplacements.keys());
   const backupDir = createBackup(filesToBackup, projectRoot);
   console.log(`  💾 Backup created: ${path.relative(projectRoot, backupDir)}`);
 
-  // Apply all replacements
   for (const [filePath, replacements] of allReplacements) {
     const newContent = applyReplacements(filePath, replacements);
     writeFile(filePath, newContent);
@@ -189,18 +212,13 @@ async function migrate(options) {
 
 /**
  * Run interactive mode — prompt user for each replacement.
- *
- * @param {Map<string, Object[]>} allReplacements
- * @returns {Promise<Map<string, Object[]>>}
  */
-async function runInteractive(allReplacements) {
-  const accepted = new Map();
-  const allReps = [];
+async function runInteractive(allReplacements: Map<string, Replacement[]>): Promise<Map<string, Replacement[]>> {
+  const accepted = new Map<string, Replacement[]>();
+  const allReps: Replacement[] = [];
 
-  for (const [filePath, replacements] of allReplacements) {
-    for (const rep of replacements) {
-      allReps.push(rep);
-    }
+  for (const [, replacements] of allReplacements) {
+    allReps.push(...replacements);
   }
 
   const rl = readline.createInterface({
@@ -208,25 +226,20 @@ async function runInteractive(allReplacements) {
     output: process.stdout,
   });
 
-  const ask = (prompt) => new Promise(resolve => {
+  const ask = (prompt: string): Promise<string> => new Promise(resolve => {
     rl.question(prompt, answer => resolve(answer.trim().toLowerCase()));
   });
 
-  let skipFile = null;
+  let skipFile: string | null = null;
 
   for (let i = 0; i < allReps.length; i++) {
     const rep = allReps[i];
-
-    // Skip if user chose to skip this file
     if (skipFile === rep.file) continue;
 
     printInteractiveItem(rep, i, allReps.length);
-
     const answer = await ask('  Apply? [Y/n/s(kip file)/q(uit)] ');
 
-    if (answer === 'q' || answer === 'quit') {
-      break;
-    }
+    if (answer === 'q' || answer === 'quit') break;
 
     if (answer === 's' || answer === 'skip') {
       skipFile = rep.file;
@@ -234,15 +247,12 @@ async function runInteractive(allReplacements) {
       continue;
     }
 
-    if (answer === 'n' || answer === 'no') {
-      continue;
-    }
+    if (answer === 'n' || answer === 'no') continue;
 
-    // Accept (y, yes, or empty = default yes)
     if (!accepted.has(rep.file)) {
       accepted.set(rep.file, []);
     }
-    accepted.get(rep.file).push(rep);
+    accepted.get(rep.file)!.push(rep);
   }
 
   rl.close();
@@ -252,7 +262,7 @@ async function runInteractive(allReplacements) {
 /**
  * Handle --undo: restore from the most recent backup.
  */
-function handleUndo(projectRoot) {
+function handleUndo(projectRoot: string): void {
   const backups = listBackups(projectRoot);
 
   if (backups.length === 0) {
@@ -261,7 +271,7 @@ function handleUndo(projectRoot) {
   }
 
   console.log('\n  📋 Available backups:\n');
-  backups.forEach((b, i) => {
+  backups.forEach((b: any, i: number) => {
     console.log(`    ${i + 1}. ${b.date} (${b.fileCount} file${b.fileCount > 1 ? 's' : ''})`);
   });
 
@@ -278,9 +288,14 @@ function handleUndo(projectRoot) {
 /**
  * Build statistics object for the report.
  */
-function buildStats(files, replacementsMap, skipped, backupDir) {
-  const componentCounts = {};
-  const skippedCounts = {};
+function buildStats(
+  files: string[], 
+  replacementsMap: Map<string, Replacement[]>, 
+  skipped: SkippedMatch[], 
+  backupDir: string | null
+): MigrationStats {
+  const componentCounts: Record<string, number> = {};
+  const skippedCounts: Record<string, number> = {};
   let totalMigrations = 0;
 
   for (const [, replacements] of replacementsMap) {
@@ -296,11 +311,7 @@ function buildStats(files, replacementsMap, skipped, backupDir) {
     skippedCounts[key] = (skippedCounts[key] || 0) + 1;
   }
 
-  const modifiedFiles = new Set();
-  for (const [filePath] of replacementsMap) {
-    modifiedFiles.add(filePath);
-  }
-
+  const modifiedFiles = new Set(replacementsMap.keys());
   const unmatchedFiles = files.filter(f => !modifiedFiles.has(f));
 
   return {
@@ -314,5 +325,3 @@ function buildStats(files, replacementsMap, skipped, backupDir) {
     backupDir: backupDir ? path.relative(process.cwd(), backupDir) : '',
   };
 }
-
-module.exports = { migrate };

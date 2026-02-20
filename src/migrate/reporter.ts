@@ -15,6 +15,33 @@
  * @property {string[]} unmatchedFiles                  - Files with no matches
  * @property {string} backupDir                         - Backup directory path
  */
+export interface MigrationStats {
+  filesScanned: number;
+  filesModified: number;
+  totalMigrations: number;
+  totalSkipped: number;
+  componentCounts: Record<string, number>;
+  skippedCounts: Record<string, number>;
+  unmatchedFiles: string[];
+  backupDir: string;
+}
+
+/**
+ * Interface pour représenter un remplacement (équivalent au JSDoc Replacement)
+ */
+export interface Replacement {
+  file: string;
+  line: number;
+  original: string;
+  classString: string;
+  newClassString: string;
+  startIndex: number;
+  endIndex: number;
+  component: string;
+  uiClass: string;
+  uiVariants: string[];
+  score: number;
+}
 
 /**
  * Print the full migration report.
@@ -22,7 +49,7 @@
  * @param {MigrationStats} stats
  * @param {boolean} isDryRun
  */
-function printReport(stats, isDryRun) {
+export function printReport(stats: MigrationStats, isDryRun: boolean): void {
   const title = isDryRun ? 'TailUI Migration Preview' : 'TailUI Migration Report';
 
   console.log('');
@@ -86,9 +113,9 @@ function printReport(stats, isDryRun) {
  * Print a single file's migration preview.
  *
  * @param {string} filePath
- * @param {import('./transformer').Replacement[]} replacements
+ * @param {Replacement[]} replacements
  */
-function printFilePreview(filePath, replacements) {
+export function printFilePreview(filePath: string, replacements: Replacement[]): void {
   console.log(`\n  📄 ${filePath}`);
   for (const rep of replacements) {
     console.log(`     L${rep.line}: ${rep.component} (${rep.score}%)`);
@@ -100,11 +127,11 @@ function printFilePreview(filePath, replacements) {
 /**
  * Print interactive prompt info for a replacement.
  *
- * @param {import('./transformer').Replacement} rep
+ * @param {Replacement} rep
  * @param {number} index
  * @param {number} total
  */
-function printInteractiveItem(rep, index, total) {
+export function printInteractiveItem(rep: Replacement, index: number, total: number): void {
   console.log(`\n  [${index + 1}/${total}] ${rep.file}:${rep.line}`);
   console.log(`  Component: ${rep.uiClass}${rep.uiVariants.length ? ' ' + rep.uiVariants.join(' ') : ''} (${rep.score}% confidence)`);
   console.log(`  \x1b[31m- ${truncate(rep.classString, 70)}\x1b[0m`);
@@ -113,10 +140,10 @@ function printInteractiveItem(rep, index, total) {
 
 /**
  * Truncate a string with ellipsis.
+ * * @param {string} str
+ * @param {number} maxLen
  */
-function truncate(str, maxLen) {
+function truncate(str: string, maxLen: number): string {
   if (str.length <= maxLen) return str;
   return str.substring(0, maxLen - 3) + '...';
 }
-
-module.exports = { printReport, printFilePreview, printInteractiveItem };
