@@ -144,7 +144,7 @@ import_commander.program.command("create <component>").description("Create a new
   }
   const template = generateTemplate(component, variants);
   import_fs2.default.writeFileSync(filePath, template);
-  console.log(`  \u2705 Created: ${filePath}`);
+  console.log(` \u2611\uFE0F Created: ${filePath}`);
   updateConfig(component, variants);
   updateIndex(dir, component);
   console.log(`
@@ -193,7 +193,7 @@ import_commander.program.command("add <component>").description("Add a TailUI co
     console.log(`  \u26A0\uFE0F  ${cssDestPath} already exists. Use --overwrite to replace.`);
   } else {
     import_fs2.default.copyFileSync(cssSourcePath, cssDestPath);
-    console.log(`  \u2705 Copied: ${cssDestPath}`);
+    console.log(`  \u2611\uFE0F Copied: ${cssDestPath}`);
     updateIndex(stylesDir, component);
   }
   if (!options.cssOnly) {
@@ -212,13 +212,13 @@ import_commander.program.command("add <component>").description("Add a TailUI co
           console.log(`  \u26A0\uFE0F  ${tsPath} already exists. Use --overwrite to replace.`);
         } else {
           import_fs2.default.writeFileSync(tsPath, template.ts());
-          console.log(`  \u2705 Generated: ${tsPath}`);
+          console.log(` \u2611\uFE0F Generated: ${tsPath}`);
         }
         if (import_fs2.default.existsSync(htmlPath) && !options.overwrite) {
           console.log(`  \u26A0\uFE0F  ${htmlPath} already exists. Use --overwrite to replace.`);
         } else {
           import_fs2.default.writeFileSync(htmlPath, template.html());
-          console.log(`  \u2705 Generated: ${htmlPath}`);
+          console.log(`\u2611\uFE0F Generated: ${htmlPath}`);
         }
       } else {
         console.log(`  \u2139\uFE0F  No Angular template for ${component}. CSS only.`);
@@ -232,7 +232,7 @@ import_commander.program.command("add <component>").description("Add a TailUI co
           console.log(`  \u26A0\uFE0F  ${filePath} already exists. Use --overwrite to replace.`);
         } else {
           import_fs2.default.writeFileSync(filePath, template);
-          console.log(`  \u2705 Generated: ${filePath}`);
+          console.log(` \u2611\uFE0F  Generated: ${filePath}`);
         }
       } else {
         console.log(`  \u2139\uFE0F  No ${stack} template for ${component}. CSS only.`);
@@ -372,7 +372,7 @@ import_commander.program.command("init").description("Initialize TailUI in the c
     const apiKey = await askQuestion(`  Enter your ${provider} API key:`, "");
     if (apiKey) {
       ai = { provider, apiKey };
-      console.log(`  \u2192 AI: ${provider} \u2705
+      console.log(`  \u2192 AI: ${provider} \u2611\uFE0F
 `);
     } else {
       console.log("  \u2192 AI: skipped (no key provided)\n");
@@ -432,7 +432,7 @@ ${CONFIG_FILE}
       console.log(`  \u{1F512} Created .gitignore with ${CONFIG_FILE} (API key protection)`);
     }
   }
-  console.log("\n  \u2705 TailUI initialized!\n");
+  console.log("\n  \u{1F389} TailUI initialized!\n");
   console.log("  Next steps:\n");
   console.log("    1. Add to tailwind.config.js:");
   console.log(`       plugins: [require('@tailuicss/core')()]`);
@@ -504,7 +504,7 @@ import_commander.program.command("generate <component>").description("Generate a
       }
     }
     import_fs2.default.writeFileSync(filePath, code);
-    console.log(`  \u2705 Generated: ${filePath}`);
+    console.log(` \u2611\uFE0F  Generated: ${filePath}`);
     console.log(`
   The component uses TailUI .ui-* classes from your styles.`);
     console.log(`  Import it in your project and start using it!
@@ -529,7 +529,7 @@ import_commander.program.command("config").description("View or update TailUI co
     }
     config.stack = options.setStack;
     changed = true;
-    console.log(`  \u2705 Stack set to: ${options.setStack}`);
+    console.log(`  \u2611\uFE0F  Stack set to: ${options.setStack}`);
   }
   if (options.setAi) {
     if (!AI_PROVIDERS.includes(options.setAi)) {
@@ -539,13 +539,13 @@ import_commander.program.command("config").description("View or update TailUI co
     if (!config.ai) config.ai = { provider: options.setAi, apiKey: "" };
     config.ai.provider = options.setAi;
     changed = true;
-    console.log(`  \u2705 AI provider set to: ${options.setAi}`);
+    console.log(`  \u2611\uFE0F  AI provider set to: ${options.setAi}`);
   }
   if (options.setKey) {
     if (!config.ai) config.ai = { provider: "openai", apiKey: "" };
     config.ai.apiKey = options.setKey;
     changed = true;
-    console.log(`  \u2705 AI API key updated`);
+    console.log(`  \u2611\uFE0F  AI API key updated`);
     const gitignorePath = import_path2.default.join(process.cwd(), ".gitignore");
     if (import_fs2.default.existsSync(gitignorePath)) {
       const gitignoreContent = import_fs2.default.readFileSync(gitignorePath, "utf8");

@@ -61,8 +61,8 @@ var tailuiPlugin = plugin.withOptions(
     const { stylesDir } = resolveConfig(options);
     const fullPath = path2.resolve(process.cwd(), stylesDir);
     return {
-      // On ajoute les fichiers CSS au "content" de Tailwind 
-      // pour que les classes .ui-* ne soient pas supprimées par le Purge/JIT
+      // We add the CSS files to Tailwind's "content"
+      // so that the .ui-* classes are not removed by the Purge/JIT
       content: [path2.join(fullPath, "ui.*.css")]
     };
   }

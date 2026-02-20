@@ -38,15 +38,29 @@ function resolveConfig(options = {}) {
 var plugin = (options = {}) => {
   const { stylesDir } = resolveConfig(options);
   return {
-    postcssPlugin: "tailui",
-    Once(root) {
+    postcssPlugin: "tailuicss",
+    // We use Once with the second argument { result } to manage dependencies
+    Once(root, { result }) {
       const fullPath = path2.resolve(process.cwd(), stylesDir);
       if (!fs2.existsSync(fullPath)) {
         return;
       }
+      result.messages.push({
+        type: "dir-dependency",
+        dir: fullPath,
+        parent: root.source?.input.file
+      });
       const files = fs2.readdirSync(fullPath).filter((f) => f.startsWith("ui.") && f.endsWith(".css")).sort();
       if (files.length === 0) return;
-      let allCSS = files.map((file) => fs2.readFileSync(path2.join(fullPath, file), "utf8")).join("\n");
+      let allCSS = files.map((file) => {
+        const filePath = path2.join(fullPath, file);
+        result.messages.push({
+          type: "dependency",
+          file: filePath,
+          parent: root.source?.input.file
+        });
+        return fs2.readFileSync(filePath, "utf8");
+      }).join("\n");
       allCSS = processStyleBlocks(allCSS);
       const parsed = postcss.parse(allCSS);
       let componentsRule = null;
@@ -59,10 +73,11 @@ var plugin = (options = {}) => {
         parsed.nodes.slice().reverse().forEach((node) => {
           componentsRule.before(node.clone());
         });
-        console.log(`[TailUI] \u2705 Injected ${files.length} component(s): ${files.map((f) => f.replace("ui.", "").replace(".css", "")).join(", ")}`);
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[TailUI] \u2611\uFE0F Injected ${files.length} component(s) with HMR enabled.`);
+        }
       } else {
         console.warn(`[TailUI] \u26A0\uFE0F  No "@tailwind components" directive found. Styles were not injected.`);
-        console.warn(`[TailUI] Make sure your CSS file contains: @tailwind base; @tailwind components; @tailwind utilities;`);
       }
     }
   };
