@@ -20,7 +20,7 @@ import { resolveConfig, PluginOptions } from '../config';
  * Usage in postcss.config.js:
  *   plugins: { '@tailuicss/core/postcss': {}, tailwindcss: {} }
  */
-const plugin: PluginCreator<PluginOptions> = (options: PluginOptions = {}) => {
+const tailuiPostcss: PluginCreator<PluginOptions> = (options: PluginOptions = {}) => {
   const { stylesDir } = resolveConfig(options);
 
   return {
@@ -98,9 +98,9 @@ const plugin: PluginCreator<PluginOptions> = (options: PluginOptions = {}) => {
   };
 };
 
-plugin.postcss = true;
+tailuiPostcss.postcss = true;
 
-export default plugin;
+export default tailuiPostcss;
 
 /**
  * Process @style { ... } blocks, supporting nested braces.

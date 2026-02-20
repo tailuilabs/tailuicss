@@ -69,7 +69,7 @@ function resolveConfig(options = {}) {
 }
 
 // src/postcss/index.ts
-var plugin = (options = {}) => {
+var tailuiPostcss = (options = {}) => {
   const { stylesDir } = resolveConfig(options);
   return {
     postcssPlugin: "tailuicss",
@@ -116,8 +116,8 @@ var plugin = (options = {}) => {
     }
   };
 };
-plugin.postcss = true;
-var postcss_default = plugin;
+tailuiPostcss.postcss = true;
+var postcss_default = tailuiPostcss;
 function processStyleBlocks(css) {
   let result = "";
   let i = 0;

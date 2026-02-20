@@ -22,6 +22,6 @@ interface PluginOptions {
  * Usage in postcss.config.js:
  *   plugins: { '@tailuicss/core/postcss': {}, tailwindcss: {} }
  */
-declare const plugin: PluginCreator<PluginOptions>;
+declare const tailuiPostcss: PluginCreator<PluginOptions>;
 
-export { plugin as default };
+export { tailuiPostcss as default };
