@@ -154,7 +154,7 @@ program
 
     const template = generateTemplate(component, variants);
     fs.writeFileSync(filePath, template);
-    console.log(`  ✅ Created: ${filePath}`);
+    console.log(` ☑️ Created: ${filePath}`);
 
     updateConfig(component, variants);
     updateIndex(dir, component);
@@ -224,7 +224,7 @@ program
       console.log(`  ⚠️  ${cssDestPath} already exists. Use --overwrite to replace.`);
     } else {
       fs.copyFileSync(cssSourcePath, cssDestPath);
-      console.log(`  ✅ Copied: ${cssDestPath}`);
+      console.log(`  ☑️ Copied: ${cssDestPath}`);
       updateIndex(stylesDir, component);
     }
 
@@ -248,14 +248,14 @@ program
             console.log(`  ⚠️  ${tsPath} already exists. Use --overwrite to replace.`);
           } else {
             fs.writeFileSync(tsPath, template.ts());
-            console.log(`  ✅ Generated: ${tsPath}`);
+            console.log(` ☑️ Generated: ${tsPath}`);
           }
 
           if (fs.existsSync(htmlPath) && !options.overwrite) {
             console.log(`  ⚠️  ${htmlPath} already exists. Use --overwrite to replace.`);
           } else {
             fs.writeFileSync(htmlPath, template.html());
-            console.log(`  ✅ Generated: ${htmlPath}`);
+            console.log(`☑️ Generated: ${htmlPath}`);
           }
         } else {
           console.log(`  ℹ️  No Angular template for ${component}. CSS only.`);
@@ -270,7 +270,7 @@ program
             console.log(`  ⚠️  ${filePath} already exists. Use --overwrite to replace.`);
           } else {
             fs.writeFileSync(filePath, template);
-            console.log(`  ✅ Generated: ${filePath}`);
+            console.log(` ☑️  Generated: ${filePath}`);
           }
         } else {
           console.log(`  ℹ️  No ${stack} template for ${component}. CSS only.`);
@@ -440,7 +440,7 @@ program
 
       if (apiKey) {
         ai = { provider, apiKey };
-        console.log(`  → AI: ${provider} ✅\n`);
+        console.log(`  → AI: ${provider} ☑️\n`);
       } else {
         console.log('  → AI: skipped (no key provided)\n');
       }
@@ -503,7 +503,7 @@ program
       }
     }
 
-    console.log('\n  ✅ TailUI initialized!\n');
+    console.log('\n  🎉 TailUI initialized!\n');
     console.log('  Next steps:\n');
     console.log('    1. Add to tailwind.config.js:');
     console.log(`       plugins: [require('@tailuicss/core')()]`);
@@ -591,7 +591,7 @@ program
       }
 
       fs.writeFileSync(filePath, code);
-      console.log(`  ✅ Generated: ${filePath}`);
+      console.log(` ☑️  Generated: ${filePath}`);
       console.log(`\n  The component uses TailUI .ui-* classes from your styles.`);
       console.log(`  Import it in your project and start using it!\n`);
     } catch (err) {
@@ -625,7 +625,7 @@ program
       }
       config.stack = options.setStack as Stack;
       changed = true;
-      console.log(`  ✅ Stack set to: ${options.setStack}`);
+      console.log(`  ☑️  Stack set to: ${options.setStack}`);
     }
 
     if (options.setAi) {
@@ -636,14 +636,14 @@ program
       if (!config.ai) config.ai = { provider: options.setAi as AIProvider, apiKey: '' };
       config.ai.provider = options.setAi as AIProvider;
       changed = true;
-      console.log(`  ✅ AI provider set to: ${options.setAi}`);
+      console.log(`  ☑️  AI provider set to: ${options.setAi}`);
     }
 
     if (options.setKey) {
       if (!config.ai) config.ai = { provider: 'openai', apiKey: '' };
       config.ai.apiKey = options.setKey;
       changed = true;
-      console.log(`  ✅ AI API key updated`);
+      console.log(`  ☑️  AI API key updated`);
 
       const gitignorePath = path.join(process.cwd(), '.gitignore');
       if (fs.existsSync(gitignorePath)) {

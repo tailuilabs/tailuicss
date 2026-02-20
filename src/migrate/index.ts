@@ -188,7 +188,7 @@ export async function migrate(options: MigrateOptions): Promise<void> {
     for (const [filePath, replacements] of accepted) {
       const newContent = applyReplacements(filePath, replacements);
       writeFile(filePath, newContent);
-      console.log(`  ✅ Migrated: ${path.relative(projectRoot, filePath)} (${replacements.length} change${replacements.length > 1 ? 's' : ''})`);
+      console.log(`  ☑️ Migrated: ${path.relative(projectRoot, filePath)} (${replacements.length} change${replacements.length > 1 ? 's' : ''})`);
     }
 
     printReport(buildStats(files, accepted, allSkipped, backupDir), false);
@@ -203,7 +203,7 @@ export async function migrate(options: MigrateOptions): Promise<void> {
   for (const [filePath, replacements] of allReplacements) {
     const newContent = applyReplacements(filePath, replacements);
     writeFile(filePath, newContent);
-    console.log(`  ✅ Migrated: ${path.relative(projectRoot, filePath)} (${replacements.length} change${replacements.length > 1 ? 's' : ''})`);
+    console.log(`  ☑️ Migrated: ${path.relative(projectRoot, filePath)} (${replacements.length} change${replacements.length > 1 ? 's' : ''})`);
   }
 
   printReport(buildStats(files, allReplacements, allSkipped, backupDir), false);
@@ -278,7 +278,7 @@ function handleUndo(projectRoot: string): void {
   const result = restoreBackup(projectRoot);
 
   if (result) {
-    console.log(`\n  ✅ Restored ${result.restored} file${result.restored > 1 ? 's' : ''} from backup.`);
+    console.log(`\n  ☑️ Restored ${result.restored} file${result.restored > 1 ? 's' : ''} from backup.`);
     console.log(`  Backup: ${path.relative(projectRoot, result.backupDir)}\n`);
   } else {
     console.log('  ❌ Failed to restore backup.\n');

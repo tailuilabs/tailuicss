@@ -30,10 +30,10 @@ export interface MatchResult {
   resolvedBy: 'tag' | 'attr' | 'class'; // How the match was resolved
 }
 
-// --- Fonctions Utilitaires Internes ---
+// --- Internal Utility Functions ---
 
 /**
- * Extrait la base d'une classe Tailwind en ignorant les préfixes (ex: md:hover:bg-blue-500 -> bg-blue-500)
+ * Extracts the base of a Tailwind class ignoring prefixes (e.g., md:hover:bg-blue-500 -> bg-blue-500)
  */
 function getBaseClass(cls: string): string {
   const parts = cls.split(':');
@@ -41,7 +41,7 @@ function getBaseClass(cls: string): string {
 }
 
 /**
- * Vérifie si une classe de base correspond à un pattern défini dans patterns.ts
+ * Checks if a base class matches a pattern defined in patterns.ts
  */
 function matchPattern(base: string, pattern: string): boolean {
   if (base === pattern) return true;
@@ -53,13 +53,13 @@ function matchPattern(base: string, pattern: string): boolean {
 }
 
 /**
- * Trouve une classe (ou l'un de ses variants responsive/état) dans l'array.
+ * Find a class (or one of its responsive/state variants) in the array.
  */
 function findMatchingClass(classes: string[], pattern: string): string | undefined {
   return classes.find(cls => matchPattern(getBaseClass(cls), pattern));
 }
 
-// --- Fonctions Principales ---
+// --- Main Functions ---
 
 /**
  * Find the best match for a ClassMatch using tag-first resolution.
@@ -132,7 +132,7 @@ export function resolveComponent(
 
   const initialConsumed = new Set<string>();
 
-  // 1. Validation via classes de confirmation
+  
   let confirmed = 0;
   for (const pattern of def.confirm) {
     const found = findMatchingClass(classes, pattern);
@@ -141,7 +141,7 @@ export function resolveComponent(
 
   if (confirmed < def.confirmMin) return null;
 
-  // 2. Capture Gloutonne : On identifie tout ce qui appartient au composant
+
   for (const cls of classes) {
     const base = getBaseClass(cls);
     
@@ -153,7 +153,7 @@ export function resolveComponent(
     }
   }
 
-  // 3. Détection des variants sémantiques (ui-primary, etc.)
+
   const uiVariants: string[] = [];
   if (def.variants) {
     for (const variant of def.variants) {
@@ -163,7 +163,7 @@ export function resolveComponent(
     }
   }
 
-  // 4. Calcul du Score
+  // Calcul du Score
   let score = (resolvedBy === 'tag') ? 70 : (resolvedBy === 'attr' ? 65 : 40);
   score += Math.round((confirmed / def.confirm.length) * 30);
   score = Math.min(score, 100);
@@ -175,12 +175,11 @@ export function resolveComponent(
   for (const cls of classes) {
     const base = getBaseClass(cls);
     
-    // Si la classe doit rester dans le HTML (Marges, Position, Flex parent)
     if (shouldPreserve(base)) {
       preserved.push(cls);
-      finalConsumed.delete(cls); // On l'enlève du pack CSS s'il y était
+      finalConsumed.delete(cls);
     } 
-    // Si elle n'est pas dans preserved et pas encore consommée, on la prend par sécurité
+
     else if (!finalConsumed.has(cls)) {
       finalConsumed.add(cls);
     }

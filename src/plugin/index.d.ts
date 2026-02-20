@@ -19,14 +19,14 @@ interface TailUIPlugin {
  *
  * @example
  * // tailwind.config.ts
- * import tailui from '@tailuicss/core';
+ * import tailui from 'tailuicss';
  * export default {
  *   plugins: [tailui()],
  * }
  *
  * @example
  * // tailwind.config.js
- * plugins: [require('@tailuicss/core')()]
+ * plugins: [require('tailuicss')()]
  */
 declare const tailui: (options?: TailUIPluginOptions) => TailUIPlugin;
 export = tailui;

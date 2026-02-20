@@ -27,7 +27,7 @@ export interface MigrationStats {
 }
 
 /**
- * Interface pour représenter un remplacement (équivalent au JSDoc Replacement)
+ * Interface for representing a replacement (equivalent to JSDoc Replacement)
  */
 export interface Replacement {
   file: string;
