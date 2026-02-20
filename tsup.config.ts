@@ -21,15 +21,17 @@ export default defineConfig([
     },
   },
 
-  // CLI → ESM uniquement + shebang garanti en première ligne
+  // CLI → ESM only + shebang 
   {
-    entry: ['src/cli/index.ts'],
+    entry: {
+      'cli/index': 'src/cli/index.ts', 
+    },
     format: ['esm'],
-    dts: false,               // Pas de types nécessaires pour le CLI
+    dts: false,
     splitting: false,
     sourcemap: true,
     minify: false,
-    shims: false,             // Pas de shims CJS en ESM pur
+    shims: false,
     banner: {
       js: '#!/usr/bin/env node',
     },
@@ -38,7 +40,7 @@ export default defineConfig([
     },
   },
 
-  // PostCSS → CJS uniquement (contrainte PostCSS/Next.js)
+  // PostCSS → CJS only ( PostCSS/Next.js)
   {
     entry: {
       'postcss/index': 'src/postcss/index.ts',
@@ -52,7 +54,7 @@ export default defineConfig([
     outExtension() {
       return { js: '.cjs' };
     },
-    // Unwrap { default: fn } → fn directement, requis par PostCSS
+    // Unwrap { default: fn } → fn directly required by PostCss
     esbuildOptions(options) {
       options.footer = {
         js: 'module.exports = module.exports.default ?? module.exports;\nmodule.exports.postcss = true;',
