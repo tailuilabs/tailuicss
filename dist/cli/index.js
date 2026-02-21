@@ -588,6 +588,77 @@ export function Toggle({
 }
 `;
 }
+function reactModal(ts = true) {
+  if (ts) {
+    return `"use client";
+import React, { useEffect } from "react";
+
+interface ModalProps {
+  open: boolean;
+  onClose: () => void;
+  title?: string;
+  size?: "sm" | "lg" | "full" | "centered";
+  className?: string;
+  children: React.ReactNode;
+}
+
+export function Modal({ open, onClose, title, size, className = "", children }: ModalProps) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  if (!open) return null;
+
+  const classes = [
+    "ui-modal",
+    size && \`ui-\${size}\`,
+    className,
+  ].filter(Boolean).join(" ");
+
+  return (
+    <div className="ui-overlay" onClick={onClose} aria-modal="true" role="dialog">
+      <div className={classes} onClick={(e) => e.stopPropagation()}>
+        <div className="ui-header">
+          {title && <h2 className="ui-title">{title}</h2>}
+          <button className="ui-close" onClick={onClose} aria-label="Close">&times;</button>
+        </div>
+        <div className="ui-body">{children}</div>
+      </div>
+    </div>
+  );
+}
+`;
+  }
+  return `"use client";
+import React, { useEffect } from "react";
+
+export function Modal({ open, onClose, title, size, className = "", children }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  if (!open) return null;
+
+  const classes = ["ui-modal", size && \`ui-\${size}\`, className].filter(Boolean).join(" ");
+
+  return (
+    <div className="ui-overlay" onClick={onClose} aria-modal="true" role="dialog">
+      <div className={classes} onClick={(e) => e.stopPropagation()}>
+        <div className="ui-header">
+          {title && <h2 className="ui-title">{title}</h2>}
+          <button className="ui-close" onClick={onClose} aria-label="Close">&times;</button>
+        </div>
+        <div className="ui-body">{children}</div>
+      </div>
+    </div>
+  );
+}
+`;
+}
 function vueButton() {
   return `<template>
   <button :class="classes" :disabled="disabled || loading" v-bind="$attrs">
@@ -782,7 +853,8 @@ var TEMPLATES = {
     input: reactInput,
     badge: reactBadge,
     alert: reactAlert,
-    toggle: reactToggle
+    toggle: reactToggle,
+    modal: reactModal
   },
   vue: {
     button: vueButton,
