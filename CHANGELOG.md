@@ -5,6 +5,15 @@ All notable changes to TailUI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] — 2026-02-20
+### Fixed
+
+- CLI __dirname undefined — added ESM-compatible __filename and __dirname via fileURLToPath(import.meta.url) in src/cli/index.ts
+- tailui add skipping component generation — replaced lazy require('../templates') with a static import, fixing template resolution after bundling
+- tailui migrate module not found — replaced lazy require('../migrate') with a static import; added migrate/index as an explicit tsup entry so dist/migrate/index.js is generated
+- CLI shebang syntax error — moved shebang injection from tsup banner option to a postbuild script (chmod +x included), fixing SyntaxError: Invalid or unexpected token on Node.js ESM
+
+
 ## [2.3.0] — 2026-02-20
 
 ### Added
